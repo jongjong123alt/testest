@@ -8,4 +8,4 @@
 
 자동 테스트 31개와 Chromium 브라우저 검증이 통과했습니다. 엄격한 Figma 원본 픽셀·폰트 일치 검증은 미완료이며 자세한 범위는 소스의 design-qa.md에 기록했습니다.
 
-ZIP을 해제하고 의존성을 설치한 뒤 `python run.py --demo`로 실행하세요. 학생은 `kdu_student / sample1234`, 교수는 `kdu_professor / sample1234`입니다. 기존 database.db와 별도 시연 DB를 함께 포함하고 있으며 --demo는 시연 DB만 사용합니다. 전체 소스 폴더는 런타임 DB를 Git에서 제외하고 필요 시 생성합니다.
+ZIP을 해제하고 의존성을 설치한 뒤 `python app.py`로 실행하세요. 학생은 `kdu_student / sample1234`, 교수는 `kdu_professor / sample1234`입니다. 기존 database.db와 별도 시연 DB를 함께 포함하고 있으며 python app.py는 기본적으로 시연 DB를 사용하며, 기존 DB는 python app.py --original로 실행합니다. 전체 소스 폴더는 런타임 DB를 Git에서 제외하고 필요 시 생성합니다.

@@ -16,6 +16,25 @@ from werkzeug.exceptions import HTTPException
 from PIL import Image, UnidentifiedImageError
 
 BASE_DIR = Path(__file__).resolve().parent
+# python app.py는 원본 DB와 분리된 시연 화면을 바로 실행합니다.
+# import app(테스트·Flask CLI·run.py)은 기존 설정을 그대로 사용합니다.
+if __name__ == '__main__':
+    import argparse
+    import subprocess
+    import sys
+    parser = argparse.ArgumentParser(description='KDU 동아리 웹사이트 실행')
+    parser.add_argument('--original', action='store_true', help='시연 DB 대신 기존 database.db 사용')
+    parser.add_argument('--host', default='127.0.0.1')
+    parser.add_argument('--port', type=int, default=5000)
+    launch_args = parser.parse_args()
+    if not launch_args.original and 'KDU_DATABASE' not in os.environ:
+        demo_path = BASE_DIR / 'instance' / 'demo.db'
+        if not demo_path.exists():
+            subprocess.run([sys.executable, str(BASE_DIR / 'seed_demo.py'),
+                            '--output', str(demo_path)], cwd=BASE_DIR, check=True)
+        os.environ['KDU_DATABASE'] = str(demo_path)
+        os.environ.setdefault('KDU_ATTACHMENT_FOLDER', str(BASE_DIR / 'instance' / 'demo-attachments'))
+
 DATABASE = os.environ.get('KDU_DATABASE', str(BASE_DIR / 'database.db'))
 app = Flask(__name__)
 app.secret_key = os.environ.get('KDU_SECRET_KEY') or secrets.token_hex(32)
@@ -751,4 +770,4 @@ def create_club_post(club_id):
 
 
 if __name__=='__main__':
-    app.run(debug=os.environ.get('KDU_DEBUG')=='1')
+    app.run(host=launch_args.host, port=launch_args.port, debug=False)

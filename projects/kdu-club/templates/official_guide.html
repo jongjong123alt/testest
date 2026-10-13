@@ -1,6 +1,6 @@
 {% extends 'base.html' %}{% block content %}
-{{ heading('등록 안내','동아리 등록 안내','테스트용 등록·검토 기능입니다. 실제 학교 접수나 승인을 대신하지 않습니다.') }}
-<div class="banner">{{ icon('info','blue') }}<div><strong>테스트용 동아리 등록</strong><p>날짜·최소 인원·캠퍼스·공식 서류 확인 조건 없이 신청할 수 있습니다.</p></div></div>
+{{ heading('동아리 등록 안내','개설 신청부터 검토 결과 확인까지 필요한 절차를 안내합니다.') }}
+<div class="banner">{{ icon('info','blue') }}<div><strong>동아리 등록</strong><p>기본 정보를 작성하면 개설을 신청할 수 있습니다. 첨부 서류와 상세 계획은 선택 사항입니다.</p></div></div>
 <div class="cols-2"><section class="card"><h2>개설 신청</h2><p>동아리 이름, 분야, 소개를 입력하세요. 설립일, 지도교수, 대표자, 회원 수, 활동 정보와 월별 계획은 선택 사항입니다.</p><p class="muted" style="margin-top:14px">등록 회원 수와 신규 부원 모집 정원은 별도로 관리합니다.</p><a class="btn soft" style="margin-top:18px" href="{{ url_for('register_club') }}">준비 자료 작성</a></section><section class="card"><h2>신청·검토 흐름</h2><ol><li>학생 계정으로 개설 신청</li><li>교수 계정으로 신청 내용 확인</li><li>사전 확인 완료 또는 사유와 함께 보완 요청</li><li>내 활동에서 결과 확인 및 보완 후 재신청</li></ol><p class="muted">사전 확인이 완료된 동아리는 운영 관리에서 정보와 부원 모집, 공지, 일정을 관리합니다.</p></section></div>
 <section class="card"><h2>첨부 서류 (선택)</h2><p>첨부하지 않아도 신청할 수 있습니다. PDF를 첨부한다면 파일명은 자유롭게 지정하세요. 공식 서식이나 서명 확인은 필수 조건이 아닙니다.</p><p class="field-help">첨부 PDF는 최대 10MB이며 읽을 수 있는 파일이어야 합니다. 서류는 신청자와 교수 검토 계정만 열람할 수 있습니다.</p></section>
 {% endblock %}

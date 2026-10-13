@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-{{ heading('D07','등록 서류를 보완해 다시 검토받아요' if club else '동아리 개설을 신청해요','테스트용 개설 신청입니다. 기본 정보 외 서류와 상세 항목은 선택 사항입니다.') }}
-<div class="banner">{{ icon('info','blue') }}<div><strong>테스트용 동아리 등록</strong><p>등록 자료 작성과 사전 검토는 날짜와 관계없이 이용할 수 있습니다. 학교 접수와 최종 승인은 별도로 진행하며, 동아리별 부원 모집 기간은 운영 관리에서 설정합니다.</p><a href="{{ url_for('official_guide') }}" class="btn white small">등록 안내 확인</a></div></div>
+{{ heading('등록 서류를 보완해 다시 검토받아요' if club else '동아리 개설을 신청해요','동아리 정보를 작성해 신청하세요. 서류와 상세 항목은 선택 사항입니다.') }}
+<div class="banner">{{ icon('info','blue') }}<div><strong>동아리 등록</strong><p>등록 자료 작성과 사전 검토는 날짜와 관계없이 이용할 수 있습니다. 동아리별 부원 모집 기간은 운영 관리에서 설정합니다.</p><a href="{{ url_for('official_guide') }}" class="btn white small">등록 안내 확인</a></div></div>
 {% if club %}<div class="banner error">{{ icon('circle-alert') }}<div><strong>이전 사전 검토의 보완 요청</strong><p>{{ club.rejection_reason }}</p></div></div>{% endif %}
 {{ error_banner(error) }}
 <form method="POST" enctype="multipart/form-data" data-registration-form>
@@ -20,7 +20,7 @@
 </section>
 <section class="card"><h2>첨부 서류 (선택)</h2><p class="muted" style="margin-bottom:18px">파일명은 자유롭게 지정하세요. 서류를 첨부하지 않아도 신청·재신청할 수 있습니다.</p><div class="field"><label for="registration_pdf">PDF 첨부 (선택)</label><input type="file" id="registration_pdf" name="registration_pdf" accept=".pdf,application/pdf"><p class="field-help">첨부 시 읽을 수 있는 PDF를 선택해주세요. 보관 한도 10MB이며, 오류가 발생하면 파일을 다시 선택하세요.</p></div>
 {% for doc in documents %}<a class="file-row" href="{{ url_for('download_registration_packet',document_id=doc.id) }}">{{ icon('file-text','blue') }}{{ doc.name }} · {{ doc.submission_count }}차 준비본</a>{% endfor %}
-<div class="banner">{{ icon('lock-keyhole','blue') }}<div>개인정보가 포함된 서류는 신청자와 앱 교수 검토 계정만 열람합니다. 이 사이트는 테스트용이며 학교 시스템과 연동하지 않습니다.</div></div>
+<div class="banner">{{ icon('lock-keyhole','blue') }}<div>첨부 서류는 신청자와 교수 검토 계정만 열람할 수 있습니다.</div></div>
 <div class="actions"><a class="btn soft" href="{{ url_for('student_mypage',tab='created') }}">취소</a><button class="btn">{{ '보완본 저장·재검토 요청' if club else '준비 자료 저장·사전 검토 요청' }}</button></div></section>
 </form>
 {% endblock %}

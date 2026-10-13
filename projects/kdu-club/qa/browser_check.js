@@ -13,7 +13,7 @@ fs.mkdirSync(output,{recursive:true});
  page.on('response',r=>{if(r.status()===404)errors.push('HTTP 404: '+r.url())});
  page.on('pageerror',e=>errors.push(e.message));
  page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('400')&&!m.text().includes('403'))errors.push(m.text())});
- async function capture(name,path){if(path)await page.goto(base+path);await page.screenshot({path:`${output}/${name}.png`,fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${name}: horizontal overflow`);}
+ async function capture(name,path){if(path)await page.goto(base+path);await page.screenshot({path:`${output}/${name}.png`,fullPage:true});assert(!/(테스트용|과제용|과제 프로젝트|과제용 샘플|D(?:0[1-9]|1[0-2]))/.test(await page.locator('body').innerText()),`${name}: presentation copy`);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${name}: horizontal overflow`);}
  async function login(username){await page.goto(base+'/login');await page.locator('#username').fill(username);await page.locator('#password').fill('sample1234');await page.getByRole('button',{name:'로그인',exact:true}).click();}
  await page.goto(base+'/login');await page.locator('#username').fill('kdu_student');await page.locator('#password').fill('wrongpass');await page.getByRole('button',{name:'로그인',exact:true}).click();assert(await page.getByRole('alert').isVisible());await capture('D01-login-error');
  await login('kdu_student');await capture('D02-explore');
@@ -52,22 +52,22 @@ fs.mkdirSync(output,{recursive:true});
  const unauthorized=await page.goto(base+'/clubs/1/manage');assert.equal(unauthorized.status(),403);
  // 공식 공고 기준 신규 준비본: 실제 학교에 제출하거나 이메일을 발송하지 않습니다.
  await page.locator('summary').click();await page.getByRole('button',{name:'로그아웃'}).click();await login('kdu_student');
- await capture('official-guide','/official-guide');assert(await page.getByText('테스트용 동아리 등록',{exact:true}).first().isVisible());
+ await capture('official-guide','/official-guide');assert(await page.getByText('동아리 등록',{exact:true}).first().isVisible());
  await page.goto(base+'/clubs/register');
- await page.locator('#name').fill('정책테스트동아리');await page.locator('#category').selectOption('취미·교양');await page.locator('#established_on').fill('2026-03-01');
+ await page.locator('#name').fill('캠퍼스창작동아리');await page.locator('#category').selectOption('취미·교양');await page.locator('#established_on').fill('2026-03-01');
  await page.locator('#advisor_name').fill('김교수');await page.locator('#representative_name').fill('김민준');await page.locator('#founding_member_count').fill('1');await page.locator('#campus').selectOption('글로벌캠퍼스');
- await page.locator('#description').fill('공식 공고 기준으로 준비하는 테스트 동아리입니다.');await page.locator('#activity_plan').fill('정기 활동과 발표회를 준비하고 회원이 협력합니다.');
+ await page.locator('#description').fill('함께 배우고 창작 활동을 진행하는 동아리입니다.');await page.locator('#activity_plan').fill('정기 활동과 발표회를 준비하고 회원이 협력합니다.');
  await page.locator('#activity_time').fill('수요일 18:00');await page.locator('#fee').fill('없음');await page.locator('#requirements').fill('본교 학사과정 재학생');
  await page.locator('#monthly_activity_1').fill('선택 입력한 계획');
  assert.equal(await page.locator('[name="forms_complete"]').count(),0);
  const originalPdf=fs.readFileSync(path.join(__dirname,'fixtures/sample.pdf'));
- await page.locator('#registration_pdf').setInputFiles({name:'자유로운 테스트 파일명.pdf',mimeType:'application/pdf',buffer:originalPdf});
+ await page.locator('#registration_pdf').setInputFiles({name:'활동 계획.pdf',mimeType:'application/pdf',buffer:originalPdf});
  await capture('official-register-filled');await page.getByRole('button',{name:'준비 자료 저장·사전 검토 요청',exact:true}).click();await page.waitForURL(/student\/mypage/);
  const packetLink=page.getByRole('link',{name:'준비 PDF 다운로드',exact:true});assert(await packetLink.isVisible());const packetUrl=await packetLink.getAttribute('href');
  const ownerPacket=await context.request.get(base+packetUrl);assert.equal(ownerPacket.status(),200);assert((await ownerPacket.body()).equals(originalPdf));
  const anonymous=await browser.newContext();const privatePacket=await anonymous.request.get(base+packetUrl);assert.equal(privatePacket.status(),403);await anonymous.close();
  await page.locator('summary').click();await page.getByRole('button',{name:'로그아웃'}).click();await login('kdu_professor');
- assert(await page.getByRole('heading',{name:'정책테스트동아리 개설 신청서',exact:true}).isVisible());await capture('official-review');
+ assert(await page.getByRole('heading',{name:'캠퍼스창작동아리 개설 신청서',exact:true}).isVisible());await capture('official-review');
  await page.getByRole('button',{name:'서류 사전 확인 완료',exact:true}).click();await page.waitForURL(/professor\/dashboard/);
  assert(await page.getByText('사전 확인 완료',{exact:true}).first().isVisible());
  fs.writeFileSync(path.join(__dirname,'browser-results.json'),JSON.stringify({viewport:{width:1320,height:1050},screenshots:fs.readdirSync(output).filter(f=>f.endsWith('.png')),consoleErrors:errors,checks:errors.length?'failed':'passed'},null,2));

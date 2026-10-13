@@ -108,7 +108,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(self.owner.get(f'/clubs/{cid}/resubmit').status_code,409)
 
     def test_creation_validation_preserves_fields(self):
-        fields=self.club_fields();fields['name']='X';r=self.post(self.owner,'/clubs/register',fields)
+        fields=self.club_fields();fields['name']='';r=self.post(self.owner,'/clubs/register',fields)
         self.assertEqual(r.status_code,400);self.assertIn(fields['activity_plan'],r.text)
         self.assertEqual(len(self.rows('SELECT * FROM clubs')),3)
 
@@ -347,25 +347,25 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(len(self.rows('SELECT * FROM clubs')),3)
         self.assertTrue(check_password_hash(self.rows('SELECT password FROM users WHERE id=1')[0]['password'],'1234'))
 
-    def test_official_minimum_members_and_campus(self):
-        for changed in [dict(founding_member_count='19'),dict(campus='글로벌캠퍼스'),dict(established_on='2027-01-01')]:
-            self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields(**changed)).status_code,400)
-        self.assertEqual(len(self.rows('SELECT * FROM clubs')),3)
+    def test_registration_no_official_population_campus_or_date_limits(self):
+        for changed in [dict(founding_member_count='1'),dict(campus='글로벌캠퍼스'),dict(established_on='2027-01-01')]:
+            self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields(**changed)).status_code,302)
 
-    def test_official_existing_report_and_closed_club_rules(self):
-        self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields(registration_kind='existing')).status_code,400)
-        self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields(previously_closed='1')).status_code,400)
-        self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields(registration_kind='existing',performance_report_confirmed='1',previously_closed='1',closed_club_distinct_confirmed='1')).status_code,302)
+    def test_registration_existing_and_closed_clubs_without_attestations(self):
+        for changed in [dict(registration_kind='existing'),dict(previously_closed='1')]:
+            self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields(**changed)).status_code,302)
 
-    def test_official_pdf_filename_validity_and_required_forms(self):
-        fields=self.club_fields();fields['registration_pdf']=(io.BytesIO(self.packet_pdf()),'wrong.pdf')
+    def test_registration_free_filename_optional_forms_and_valid_pdf(self):
+        fields=self.club_fields();fields['registration_pdf']=(io.BytesIO(self.packet_pdf()),'자유 파일명.pdf')
+        self.assertEqual(self.post(self.owner,'/clubs/register',fields).status_code,302)
+        self.assertEqual(self.rows('SELECT name FROM registration_documents')[0]['name'],'자유 파일명.pdf')
+        fields=self.club_fields();fields['registration_pdf']=(io.BytesIO(b'%PDF-broken'),'broken.pdf')
         self.assertEqual(self.post(self.owner,'/clubs/register',fields).status_code,400)
-        fields=self.club_fields();fields['registration_pdf']=(io.BytesIO(b'%PDF-broken'),'새동아리(대표자).pdf')
-        self.assertEqual(self.post(self.owner,'/clubs/register',fields).status_code,400)
-        for key in ['forms_complete','roster_complete','dual_memberships_declared','signatures_confirmed','eligibility_confirmed','monthly_activity_12','registration_pdf']:
-            fields=self.club_fields();fields.pop(key)
-            self.assertEqual(self.post(self.owner,'/clubs/register',fields).status_code,400,key)
-        self.assertEqual(len(self.rows('SELECT * FROM clubs')),3)
+        fields=self.club_fields()
+        for key in ['forms_complete','roster_complete','dual_memberships_declared','signatures_confirmed','eligibility_confirmed','monthly_activity_12','registration_pdf','founding_member_count','established_on','advisor_name','representative_name']:
+            fields.pop(key,None)
+        self.assertEqual(self.post(self.owner,'/clubs/register',fields).status_code,302)
+        self.assertEqual(len(self.rows('SELECT * FROM registration_documents')),1)
 
     def test_official_pdf_privacy_and_monthly_plan(self):
         self.post(self.owner,'/clubs/register',self.club_fields())
@@ -388,27 +388,34 @@ class WorkflowTests(unittest.TestCase):
             self.assertNotIn('기간 종료',r.text)
             self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields()).status_code,302)
         self.assertIn('학교 접수와는 별개',self.owner.get('/student/mypage').text)
-        self.assertIn('취업복지처',self.owner.get('/official-guide').text)
+        guide=self.owner.get('/official-guide').text
+        for value in ['chae3374','031-869-9716','이채연','임진희','mailto:','공식 모집 공고 PDF','등록 서식 HWPX']:
+            self.assertNotIn(value,guide)
         for path in ['/static/official/metropol-2026-notice.pdf','/static/official/club-registration-forms.hwpx']:
-            self.assertEqual(self.owner.get(path).status_code,200)
+            self.assertEqual(self.owner.get(path).status_code,404)
 
-    def test_metropol_applicant_eligibility_confirmation(self):
+    def test_metropol_applicant_without_official_eligibility_confirmation(self):
         self.execute("UPDATE clubs SET campus='메트로폴캠퍼스' WHERE id=1")
         values=dict(reason='함께 코딩을 배우고 싶습니다.',availability='가능',goal='공부',personality='협력')
-        self.assertEqual(self.post(self.student,'/clubs/apply/1',values).status_code,400)
-        self.assertEqual(self.apply().status_code,302)
+        self.assertEqual(self.post(self.student,'/clubs/apply/1',values).status_code,302)
 
-    def test_official_review_requires_packet_and_manual_confirmation(self):
-        self.post(self.owner,'/clubs/register',self.club_fields())
+    def test_review_without_pdf_or_manual_attestation(self):
+        fields=dict(name='간단 신청',category='학술',description='테스트')
+        self.assertEqual(self.post(self.owner,'/clubs/register',fields).status_code,302)
         cid=self.rows('SELECT MAX(id) id FROM clubs')[0]['id']
         self.post(self.prof,'/professor/dashboard',dict(club_id=cid,action='approve'))
-        self.assertEqual(self.rows('SELECT status FROM clubs WHERE id=?',(cid,))[0]['status'],'pending')
-        self.post(self.prof,'/professor/dashboard',dict(club_id=cid,action='approve',documents_reviewed='1'))
         self.assertEqual(self.rows('SELECT status FROM clubs WHERE id=?',(cid,))[0]['status'],'approved')
         self.assertIn('학교 최종 승인과는 별개',self.rows('SELECT message FROM notifications')[0]['message'])
         self.execute("UPDATE clubs SET status='pending' WHERE id=1")
-        self.post(self.prof,'/professor/dashboard',dict(club_id=1,action='approve',documents_reviewed='1'))
-        self.assertEqual(self.rows('SELECT status FROM clubs WHERE id=1')[0]['status'],'pending')
+        self.post(self.prof,'/professor/dashboard',dict(club_id=1,action='approve'))
+        self.assertEqual(self.rows('SELECT status FROM clubs WHERE id=1')[0]['status'],'approved')
+        self.post(self.owner,'/clubs/register',fields)
+        resubmit_id=self.rows('SELECT MAX(id) id FROM clubs')[0]['id']
+        self.post(self.prof,'/professor/dashboard',dict(club_id=resubmit_id,action='reject',rejection_reason='소개를 보완해주세요'))
+        self.assertEqual(self.post(self.owner,f'/clubs/{resubmit_id}/resubmit',fields).status_code,302)
+        self.post(self.prof,'/professor/dashboard',dict(club_id=resubmit_id,action='approve'))
+        self.assertEqual(self.rows('SELECT status FROM clubs WHERE id=?',(resubmit_id,))[0]['status'],'approved')
+        self.assertEqual(len(self.rows('SELECT * FROM registration_documents')),0)
 
     def test_migration_repeatable_preserves_data(self):
         before=self.rows('SELECT * FROM users')

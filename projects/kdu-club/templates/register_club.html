@@ -1,33 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
-{{ heading('D07','등록 서류를 보완해 다시 검토받아요' if club else '공식 등록 서류를 준비해요','2026 메트로폴캠퍼스 공고·등록 서식 기준입니다. 앱 저장은 학교 접수나 최종 승인을 의미하지 않습니다.') }}
-<div class="banner">{{ icon('info','blue') }}<div><strong>공식 서식 기준 · 등록 자료 준비</strong><p>등록 자료 작성과 사전 검토는 날짜와 관계없이 이용할 수 있습니다. 학교 접수와 최종 승인은 별도로 진행하며, 동아리별 부원 모집 기간은 운영 관리에서 설정합니다.</p><a href="{{ url_for('official_guide') }}" class="btn white small">공고·서식·제출 절차 확인</a></div></div>
+{{ heading('D07','등록 서류를 보완해 다시 검토받아요' if club else '동아리 개설을 신청해요','테스트용 개설 신청입니다. 기본 정보 외 서류와 상세 항목은 선택 사항입니다.') }}
+<div class="banner">{{ icon('info','blue') }}<div><strong>테스트용 동아리 등록</strong><p>등록 자료 작성과 사전 검토는 날짜와 관계없이 이용할 수 있습니다. 학교 접수와 최종 승인은 별도로 진행하며, 동아리별 부원 모집 기간은 운영 관리에서 설정합니다.</p><a href="{{ url_for('official_guide') }}" class="btn white small">등록 안내 확인</a></div></div>
 {% if club %}<div class="banner error">{{ icon('circle-alert') }}<div><strong>이전 사전 검토의 보완 요청</strong><p>{{ club.rejection_reason }}</p></div></div>{% endif %}
 {{ error_banner(error) }}
 <form method="POST" enctype="multipart/form-data" data-registration-form>
 {{ csrf() }}
-<section class="card"><h2>서식 1 · 학생단체 승인(등록) 신청 정보</h2>
-<div class="cols-2">{{ field('name','단체 명칭',values,min=2,max=30) }}<div class="field"><label for="registration_kind">등록 유형 *</label><select name="registration_kind" id="registration_kind" required><option value="new" {{ 'selected' if values.get('registration_kind')=='new' }}>신규 동아리</option><option value="existing" {{ 'selected' if values.get('registration_kind')=='existing' }}>기존 동아리 · 서식 5 추가 필요</option></select></div></div>
-<div class="cols-2"><div class="field"><label for="category">모집 분야 *</label><select name="category" id="category" required><option value="">선택</option>{% for key,label in category_options.items() %}<option value="{{ key }}" {{ 'selected' if values.get('category')==key }}>{{ label }}</option>{% endfor %}</select></div>{{ field('established_on','설립일자',values,type='date') }}</div>
-<div class="cols-2">{{ field('advisor_name','지도교수 성명',values,max=50) }}{{ field('representative_name','동아리 회장·대표자 성명',values,max=30) }}</div>
-<div class="cols-2"><div class="field"><label>대상 캠퍼스</label><input value="메트로폴캠퍼스" readonly><input type="hidden" name="campus" value="메트로폴캠퍼스"></div><div class="field"><label for="founding_member_count">등록 회원 수 *</label><input type="number" name="founding_member_count" id="founding_member_count" min="20" required value="{{ values.get('founding_member_count','') }}"><p class="field-help">팀당 최소 20명 · 신규 가입 모집 정원과 별개입니다. 회원 명단에 전원을 기재하세요.</p></div></div>
-{{ field('description','설립 목적 · 소개',values,area=true,min=10,max=1000) }}{{ field('activity_plan','주요 사업·활동 사항',values,area=true,min=10,max=2000) }}
-<div class="cols-2">{{ field('activity_time','활동 요일·시간',values,max=100) }}{{ field('fee','회비',values,max=80,help='회비 기준은 공고에 없으므로 자체 운영 정보로 기재합니다.') }}</div>
-{{ field('room_location','희망 활동 장소',values,required=false,max=100,help='신규 동아리실은 1학기 평가 후 2학기 배정이며, 공간이 부족하면 공동 사용합니다. 이 입력으로 배정되지 않습니다.') }}{{ field('requirements','가입 조건',values) }}
+<section class="card"><h2>동아리 기본 정보</h2>
+<div class="cols-2">{{ field('name','단체 명칭',values,min=1,max=30) }}<div class="field"><label for="registration_kind">등록 유형 *</label><select name="registration_kind" id="registration_kind" required><option value="new" {{ 'selected' if values.get('registration_kind')=='new' }}>신규 동아리</option><option value="existing" {{ 'selected' if values.get('registration_kind')=='existing' }}>기존 동아리</option></select></div></div>
+<div class="cols-2"><div class="field"><label for="category">모집 분야 *</label><select name="category" id="category" required><option value="">선택</option>{% for key,label in category_options.items() %}<option value="{{ key }}" {{ 'selected' if values.get('category')==key }}>{{ label }}</option>{% endfor %}</select></div>{{ field('established_on','설립일자',values,type='date',required=false) }}</div>
+<div class="cols-2">{{ field('advisor_name','지도교수 성명',values,max=50,required=false) }}{{ field('representative_name','동아리 회장·대표자 성명',values,max=30,required=false) }}</div>
+<div class="cols-2">{{ field('campus','활동 캠퍼스',values,required=false) }}<div class="field"><label for="founding_member_count">회원 수 (선택)</label><input type="number" name="founding_member_count" id="founding_member_count" min="0" value="{{ values.get('founding_member_count','') or '' }}"><p class="field-help">최소 인원 제한 없이 신청할 수 있습니다.</p></div></div>
+{{ field('description','설립 목적 · 소개',values,area=true,min=1,max=1000) }}{{ field('activity_plan','주요 사업·활동 사항',values,area=true,min=0,max=2000,required=false) }}
+<div class="cols-2">{{ field('activity_time','활동 요일·시간',values,max=100,required=false) }}{{ field('fee','회비',values,max=80,required=false) }}</div>
+{{ field('room_location','희망 활동 장소',values,required=false,max=100,help='활동 장소를 자유롭게 입력하세요.') }}{{ field('requirements','가입 조건',values,required=false) }}
 </section>
-<section class="card"><h2>서식 4 · 월별 활동 계획</h2><p class="muted" style="margin-bottom:20px">1–12월 활동 내용과 기대효과를 기재하세요. 활동이 없는 달은 ‘활동 없음’이라고 적고, 상세 계획은 PDF에도 반영해주세요.</p>
-{% for month in range(1,13) %}<details class="monthly-plan" {{ 'open' if month==1 }}><summary>{{ month }}월 활동 계획</summary><div class="cols-2">{{ field('monthly_activity_' ~ month,'활동 내용',values,area=true,max=1000) }}{{ field('monthly_effect_' ~ month,'기대효과',values,area=true,max=500,required=false,min=0) }}</div></details>{% endfor %}
+<section class="card"><h2>월별 활동 계획 (선택)</h2><p class="muted" style="margin-bottom:20px">필요한 달만 작성하세요. 비워두어도 신청할 수 있습니다.</p>
+{% for month in range(1,13) %}<details class="monthly-plan" {{ 'open' if month==1 }}><summary>{{ month }}월 활동 계획</summary><div class="cols-2">{{ field('monthly_activity_' ~ month,'활동 내용',values,area=true,max=1000,required=false,min=0) }}{{ field('monthly_effect_' ~ month,'기대효과',values,area=true,max=500,required=false,min=0) }}</div></details>{% endfor %}
 </section>
-<section class="card"><h2>공고상 자격·서류 확인</h2><div class="check-list">
-{% for key,label in [('eligibility_confirmed','회원 전원이 본교 학사과정 재학생이며, 2026년 1·2학기 휴학·징계·졸업/일반인·폭행 등 결격 사유 및 기타 제한에 해당하지 않음을 확인했습니다.'),('forms_complete','서식 1 신청서, 서식 2 회칙, 서식 3 전원 회원 명단, 서식 4 월별 활동 계획을 순서대로 준비했습니다.'),('roster_complete','회원 명단에 전원의 직책·학과·학년·학번·성명·연락처를 기재하고 등록 인원과 대조했습니다.'),('dual_memberships_declared','두 개 이상의 동아리에 참가하는 구성원이 있으면 별도로 기재했습니다. 없으면 해당 없음으로 확인했습니다.'),('signatures_confirmed','실제 제출본에는 회장·지도교수의 서명을 확인합니다. 사이트는 서명이나 학교 승인을 생성하지 않습니다.')] %}
-<label class="checkbox"><input type="checkbox" name="{{ key }}" value="1" required {{ 'checked' if values.get(key)=='1' }}>{{ label }}</label>{% endfor %}
-<label class="checkbox"><input type="checkbox" name="performance_report_confirmed" value="1" {{ 'checked' if values.get('performance_report_confirmed')=='1' }}>기존 동아리: 서식 5 실적 보고서와 활동 증명 사진 등 자료를 추가했습니다. (기존 동아리 필수)</label>
-<label class="checkbox"><input type="checkbox" name="previously_closed" value="1" {{ 'checked' if values.get('previously_closed')=='1' }}>이전에 폐쇄되었던 동아리와 관련된 재등록입니다.</label>
-<label class="checkbox"><input type="checkbox" name="closed_club_distinct_confirmed" value="1" {{ 'checked' if values.get('closed_club_distinct_confirmed')=='1' }}>폐쇄 동아리 관련 신청: 이전 단체와 명칭·목적·팀원 중 동일한 항목이 없음을 확인했습니다.</label>
-</div><p class="field-help">자격과 서류 내용은 신청자의 확인 및 담당자의 수동 검토 대상입니다. 2학기 이상 성과 기준을 충족하지 못한 단체 등 공고의 제한 기준도 확인하세요.</p></section>
-<section class="card"><h2>순서대로 합친 제출 준비 PDF</h2><p class="muted" style="margin-bottom:18px">파일명: <strong data-packet-filename>동아리명(대표자 성명).pdf</strong></p><div class="field"><label for="registration_pdf">PDF 첨부 *</label><input type="file" id="registration_pdf" name="registration_pdf" accept=".pdf,application/pdf" required><p class="field-help">사이트 보관 한도 10MB · 암호화하지 않은 PDF · 재검토 시 보완본을 다시 첨부하세요. 업로드 오류 시 입력 내용은 유지되며 파일은 다시 선택해야 합니다.</p></div>
+<section class="card"><h2>첨부 서류 (선택)</h2><p class="muted" style="margin-bottom:18px">파일명은 자유롭게 지정하세요. 서류를 첨부하지 않아도 신청·재신청할 수 있습니다.</p><div class="field"><label for="registration_pdf">PDF 첨부 (선택)</label><input type="file" id="registration_pdf" name="registration_pdf" accept=".pdf,application/pdf"><p class="field-help">첨부 시 읽을 수 있는 PDF를 선택해주세요. 보관 한도 10MB이며, 오류가 발생하면 파일을 다시 선택하세요.</p></div>
 {% for doc in documents %}<a class="file-row" href="{{ url_for('download_registration_packet',document_id=doc.id) }}">{{ icon('file-text','blue') }}{{ doc.name }} · {{ doc.submission_count }}차 준비본</a>{% endfor %}
-<div class="banner">{{ icon('lock-keyhole','blue') }}<div>개인정보가 포함된 서류는 신청자와 앱 교수 검토 계정만 열람합니다. 학교에는 신청자가 직접 이메일로 제출하며, 이 사이트는 이메일을 발송하지 않습니다.</div></div>
+<div class="banner">{{ icon('lock-keyhole','blue') }}<div>개인정보가 포함된 서류는 신청자와 앱 교수 검토 계정만 열람합니다. 이 사이트는 테스트용이며 학교 시스템과 연동하지 않습니다.</div></div>
 <div class="actions"><a class="btn soft" href="{{ url_for('student_mypage',tab='created') }}">취소</a><button class="btn">{{ '보완본 저장·재검토 요청' if club else '준비 자료 저장·사전 검토 요청' }}</button></div></section>
 </form>
 {% endblock %}

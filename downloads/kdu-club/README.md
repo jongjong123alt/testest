@@ -11,3 +11,5 @@
 자동 테스트 **42개 통과**, Chromium 브라우저 검사 통과·콘솔 오류 0개. 모바일과 실제 학교 계정 인증은 포함하지 않습니다.
 
 새 폴더에 압축을 풀고 `pip install -r requirements.txt` 후 `python app.py`로 실행하세요. 학생 `kdu_student / sample1234`, 교수 `kdu_professor / sample1234`입니다. 기존 DB와 instance 데이터는 먼저 보존하세요. 실행 시 기존 자료를 삭제하지 않고 필요한 구조만 추가합니다. 실제 등록 준비 PDF는 배포 ZIP에 포함하지 않습니다.
+
+다운로드 ZIP은 실행용 패키지입니다. README·VERIFICATION·design-qa·qa(스크린샷 포함)·tests·.gitignore는 포함하지 않습니다. app.py·seed_demo.py·schema.sql·requirements.txt·DB·instance·static·templates를 유지합니다. 아이콘 배포 조건을 위한 static/icons/LICENSE도 유지합니다. 개발용 문서와 검증 도구는 GitHub 소스에 남아 있습니다.

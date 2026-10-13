@@ -1,0 +1,24 @@
+{
+  "viewport": {
+    "width": 1320,
+    "height": 1050
+  },
+  "screenshots": [
+    "D01-login-error.png",
+    "D02-explore.png",
+    "D03-club-detail.png",
+    "D04-application.png",
+    "D05-my-activity.png",
+    "D06-notifications.png",
+    "D07-resubmit.png",
+    "D08-management.png",
+    "D09-members.png",
+    "D10-edit-notice.png",
+    "D10-upload-error.png",
+    "D11-delete-confirm.png",
+    "D11-edit-schedule.png",
+    "D12-professor-review.png"
+  ],
+  "consoleErrors": [],
+  "checks": "passed"
+}

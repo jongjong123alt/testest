@@ -1,0 +1,42 @@
+const {chromium}=require('playwright');
+const fs=require('fs');
+const assert=require('assert');
+const base=process.env.KDU_QA_URL || 'http://127.0.0.1:5002';
+const path=require('path');
+const output=path.join(__dirname,'screenshots');
+fs.mkdirSync(output,{recursive:true});
+(async()=>{
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH || (fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox']});
+ const errors=[];
+ const context=await browser.newContext({viewport:{width:1320,height:1050},locale:'ko-KR',timezoneId:'Asia/Seoul'});
+ const page=await context.newPage();
+ page.on('response',r=>{if(r.status()===404)errors.push('HTTP 404: '+r.url())});
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('400')&&!m.text().includes('403'))errors.push(m.text())});
+ async function capture(name,path){if(path)await page.goto(base+path);await page.screenshot({path:`${output}/${name}.png`,fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${name}: horizontal overflow`);}
+ async function login(username){await page.goto(base+'/login');await page.locator('#username').fill(username);await page.locator('#password').fill('sample1234');await page.getByRole('button',{name:'로그인',exact:true}).click();}
+ await page.goto(base+'/login');await page.locator('#username').fill('kdu_student');await page.locator('#password').fill('wrongpass');await page.getByRole('button',{name:'로그인',exact:true}).click();assert(await page.getByRole('alert').isVisible());await capture('D01-login-error');
+ await login('kdu_student');await capture('D02-explore');
+ await page.getByRole('checkbox',{name:'모집 중만 보기'}).check();await page.waitForURL(/recruiting=1/);assert.equal(await page.locator('.club-card').count(),1);
+ await page.goto(base+'/');await page.locator('input[name=keyword]').fill("' OR 1=1 --");await page.getByRole('button',{name:'검색',exact:true}).click();assert(await page.getByText('조건에 맞는 동아리가 없어요').isVisible());
+ await capture('D03-club-detail','/clubs/1');
+ await page.getByRole('link',{name:'Q&A',exact:true}).click();assert(await page.locator('#qna').isVisible());
+ await capture('D04-application','/clubs/apply/1');
+ await capture('D05-my-activity','/student/mypage');await page.getByRole('button',{name:'찜',exact:true}).click();assert(await page.locator('[data-panel="applications favorites"]').first().isVisible());assert(!(await page.locator('[data-panel="applications"]').isVisible()));
+ await page.getByRole('button',{name:'신청 현황',exact:true}).click();await page.getByRole('button',{name:'결과 보기',exact:true}).click();assert(await page.locator('dialog[open]').isVisible());await page.getByRole('button',{name:'닫기',exact:true}).click();
+ await capture('D06-notifications','/notifications');await page.getByRole('button',{name:/안읽음/}).click();assert.equal(await page.locator('.notification-row:visible').count(),2);
+ await page.getByRole('button',{name:/전체/}).click();await page.locator('.notification-row').filter({hasText:'피닉스 FC 가입'}).getByRole('link',{name:'결과 보기'}).click();await page.waitForURL(/student\/mypage/);await page.locator('dialog[open]').waitFor({state:'visible'});await page.getByRole('button',{name:'닫기'}).click();
+ await capture('D07-resubmit','/clubs/4/resubmit');
+ await capture('D08-management','/clubs/1/manage');await page.getByRole('button',{name:'모집 조기마감'}).click();assert(await page.locator('dialog[open]').isVisible());await page.getByRole('button',{name:'돌아가기'}).click();await page.getByRole('button',{name:'변경 사항 저장'}).click();await page.waitForURL(/\/manage$/);assert(await page.getByText('변경 사항을 저장했습니다.',{exact:true}).isVisible());
+ await capture('D09-members','/clubs/1/members');assert(!(await page.locator('main').textContent()).includes('kdu_student'));await page.getByRole('button',{name:'사유와 함께 반려'}).click();assert.equal(await page.locator('textarea').evaluate(e=>e.validationMessage),'반려 사유를 입력해주세요.');await page.locator('textarea').fill('활동 시간 확인이 필요합니다.');await page.getByRole('button',{name:'가입 승인',exact:true}).click();await page.waitForURL(/members/);assert((await page.locator('main').textContent()).includes('이번 모집 승인 9'));
+ await capture('D10-edit-notice','/clubs/1/posts/1');
+ const content='업로드 실패 시에도 반드시 유지되는 본문';await page.locator('#content').fill(content);
+ await page.locator('#attachment-picker').setInputFiles({name:'bad.exe',mimeType:'application/octet-stream',buffer:Buffer.from('bad')});await page.locator('[data-upload-error]').waitFor({state:'visible'});assert.equal(await page.locator('#content').inputValue(),content);assert.equal(await page.locator('[data-attachment]').count(),1);await capture('D10-upload-error');
+ await page.locator('#attachment-picker').setInputFiles({name:'new.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4\n%%EOF')});await page.waitForFunction(()=>document.querySelectorAll('[data-attachment]').length===2);await page.waitForFunction(()=>!document.querySelector('[data-save-post]').disabled);await page.getByRole('button',{name:'공지 저장'}).click();await page.waitForURL(/\/posts$/);await page.goto(base+'/clubs/1');assert(await page.getByText(content,{exact:true}).isVisible());assert(await page.locator('.file-row').filter({hasText:'new.pdf'}).isVisible());
+ await capture('D11-edit-schedule','/clubs/1/schedules/1');const title=await page.locator('#title').inputValue();await page.getByRole('button',{name:'일정 저장',exact:true}).click();await page.waitForURL(/\/schedules$/);await page.goto(base+'/clubs/1/schedules/1');await page.getByRole('button',{name:'일정 삭제',exact:true}).click();assert(await page.locator('dialog[open]').isVisible());await capture('D11-delete-confirm');await page.getByRole('button',{name:'돌아가기'}).click();assert.equal(await page.locator('#title').inputValue(),title);await page.getByRole('button',{name:'일정 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제하기',exact:true}).click();await page.waitForURL(/\/schedules$/);assert.equal(await page.locator('.summary-list').filter({hasText:title}).count(),0);
+ await page.locator('summary').click();await page.getByRole('button',{name:'로그아웃'}).click();await login('kdu_professor');await capture('D12-professor-review');assert.equal(await page.locator('header nav a').count(),1);
+ await page.getByRole('button',{name:'사유와 함께 반려'}).click();assert.equal(await page.locator('textarea').evaluate(e=>e.validationMessage),'반려 사유를 입력해주세요.');
+ const unauthorized=await page.goto(base+'/clubs/1/manage');assert.equal(unauthorized.status(),403);
+ fs.writeFileSync(path.join(__dirname,'browser-results.json'),JSON.stringify({viewport:{width:1320,height:1050},screenshots:fs.readdirSync(output).filter(f=>f.endsWith('.png')),consoleErrors:errors,checks:errors.length?'failed':'passed'},null,2));
+ assert.deepEqual(errors,[]);await browser.close();console.log('Desktop browser checks passed; D01–D12 screenshots captured.');
+})().catch(e=>{console.error(e);process.exit(1)});

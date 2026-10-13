@@ -2,7 +2,7 @@
 
 [최신 수정본 ZIP 다운로드](https://github.com/jongjong123alt/testest/raw/refs/heads/master/downloads/kdu-club/kdu_club_project_updated.zip)
 
-[전체 소스와 실행 안내](../../projects/kdu-club/README.md) · [검증 기록](VERIFICATION.md) · [화면 캡처](../../projects/kdu-club/qa/screenshots)
+[전체 소스와 실행 안내](../../projects/kdu-club/README.md) · [검증 기록](../../projects/kdu-club/VERIFICATION.md) · [화면 캡처](../../projects/kdu-club/qa/screenshots)
 
 제공받은 동아리 과제의 화면을 Flask·SQLite·Jinja2에 적용했습니다. FOCURVE와 무관하며 모바일 UI는 포함하지 않습니다. 로그인, 탐색·검색·찜, 가입 신청, 내 활동, 알림, 개설 재신청, 모집 관리, 가입 심사, 공지 첨부, 일정 관리, 교수 개설 심사를 구현했습니다.
 

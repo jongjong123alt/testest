@@ -17,7 +17,7 @@ from PIL import Image, UnidentifiedImageError
 
 BASE_DIR = Path(__file__).resolve().parent
 # python app.py는 원본 DB와 분리된 시연 화면을 바로 실행합니다.
-# import app(테스트·Flask CLI·run.py)은 기존 설정을 그대로 사용합니다.
+# import app(테스트·Flask CLI)은 기존 설정을 그대로 사용합니다.
 if __name__ == '__main__':
     import argparse
     import subprocess

@@ -25,7 +25,7 @@ python3 -m venv .venv
 | 학생·코딩클럽 개설자 | kdu_student | sample1234 |
 | 교수·개설 심사 전용 | kdu_professor | sample1234 |
 
-`python app.py`는 `instance/demo.db`와 `instance/demo-attachments`를 사용합니다. 처음 실행할 때만 샘플을 생성하고 재실행 시 작성 내용을 유지합니다. 기존 `database.db`는 덮어쓰지 않습니다. `KDU_DATABASE`를 명시한 경우 해당 DB를 사용하며 시연 DB로 바꾸지 않습니다. 기존 `python run.py --demo` 실행 방식도 계속 사용할 수 있습니다. 모집 기간과 일정은 샘플 생성 시점에 맞춰 생성됩니다. 기간이 지나면 운영 관리에서 새 모집 기간을 설정하세요.
+`python app.py`는 `instance/demo.db`와 `instance/demo-attachments`를 사용합니다. 처음 실행할 때만 샘플을 생성하고 재실행 시 작성 내용을 유지합니다. 기존 `database.db`는 덮어쓰지 않습니다. `KDU_DATABASE`를 명시한 경우 해당 DB를 사용하며 시연 DB로 바꾸지 않습니다. 모집 기간과 일정은 샘플 생성 시점에 맞춰 생성됩니다. 기간이 지나면 운영 관리에서 새 모집 기간을 설정하세요.
 
 기존 첨부 DB를 사용하려면 `python app.py --original`로 실행하세요. 기존 계정과 데이터는 유지됩니다. 신규 빈 DB 초기 계정은 학생 `20211234 / 1234`, 교수 `prof1 / 1234`이며 실제 기존 DB의 계정과 다를 수 있습니다. 기존 동아리는 모집 기간·정원이 없으면 신규 가입을 받지 않으므로 개설자가 운영 관리에서 설정해야 합니다.
 

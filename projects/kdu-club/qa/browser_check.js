@@ -39,7 +39,7 @@ fs.mkdirSync(output,{recursive:true});
  const unauthorized=await page.goto(base+'/clubs/1/manage');assert.equal(unauthorized.status(),403);
  // 공식 공고 기준 신규 준비본: 실제 학교에 제출하거나 이메일을 발송하지 않습니다.
  await page.locator('summary').click();await page.getByRole('button',{name:'로그아웃'}).click();await login('kdu_student');
- await capture('official-guide','/official-guide');assert(await page.getByText('기간 종료',{exact:false}).first().isVisible());
+ await capture('official-guide','/official-guide');assert(await page.getByText('공식 서식 기준 · 등록 자료 준비',{exact:true}).first().isVisible());
  await page.goto(base+'/clubs/register');
  await page.locator('#name').fill('정책테스트동아리');await page.locator('#category').selectOption('취미·교양');await page.locator('#established_on').fill('2026-03-01');
  await page.locator('#advisor_name').fill('김교수');await page.locator('#representative_name').fill('김민준');await page.locator('#founding_member_count').fill('20');

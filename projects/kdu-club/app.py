@@ -47,8 +47,6 @@ app.config.update(MAX_CONTENT_LENGTH=32 * 1024 * 1024,
                   SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
 CATEGORIES = {'학술':'학술', '체육':'체육', '예술':'예술', '취미·교양':'취미·교양', '종교':'종교', '사회·봉사':'사회·봉사'}
 OFFICIAL_CAMPUS = '메트로폴캠퍼스'
-OFFICIAL_START = datetime(2026,3,26)
-OFFICIAL_END = datetime(2026,4,1,23,59)
 STATUS_NAMES = {'pending': '심사 대기', 'approved': '승인 완료', 'rejected': '반려'}
 
 
@@ -241,8 +239,7 @@ def notify(uid, message, kind, club_id, member_id=None):
 def common_context():
     session.setdefault('csrf_token', secrets.token_hex(32))
     return {'csrf_token':session['csrf_token'], 'categories':{**CATEGORIES,'공연':'예술','봉사':'사회·봉사'},
-            'category_options':CATEGORIES,'status_names':STATUS_NAMES,
-            'official_window_open':OFFICIAL_START<=now()<=OFFICIAL_END}
+            'category_options':CATEGORIES,'status_names':STATUS_NAMES}
 
 
 @app.before_request

@@ -380,9 +380,13 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(club['founding_member_count'],20)
         self.assertNotIn('registration_documents',self.student.get('/').text)
 
-    def test_official_period_closed_but_preparation_not_school_submission(self):
-        r=self.owner.get('/clubs/register');self.assertIn('접수 기간 종료',r.text)
-        self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields()).status_code,302)
+    def test_registration_preparation_independent_of_notice_dates(self):
+        for stamp in [datetime(2026,3,20,12),datetime(2026,10,13,12)]:
+            module.app.config['NOW']=lambda s=stamp:s
+            r=self.owner.get('/clubs/register')
+            self.assertIn('날짜와 관계없이',r.text)
+            self.assertNotIn('기간 종료',r.text)
+            self.assertEqual(self.post(self.owner,'/clubs/register',self.club_fields()).status_code,302)
         self.assertIn('학교 접수와는 별개',self.owner.get('/student/mypage').text)
         self.assertIn('취업복지처',self.owner.get('/official-guide').text)
         for path in ['/static/official/metropol-2026-notice.pdf','/static/official/club-registration-forms.hwpx']:

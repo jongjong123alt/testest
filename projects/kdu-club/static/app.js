@@ -77,3 +77,13 @@ if (attachmentForm) {
   dropzone.addEventListener('drop', e => {e.preventDefault(); dropzone.classList.remove('dragging'); upload([...e.dataTransfer.files]);});
   attachmentForm.addEventListener('submit', e => {if (uploading) {e.preventDefault(); showError('업로드가 완료된 후 저장해주세요.');}});
 }
+const packetFilename = document.querySelector('[data-packet-filename]');
+if (packetFilename) {
+  const clubName=document.getElementById('name');
+  const representative=document.getElementById('representative_name');
+  function updateFilename(){packetFilename.textContent=`${clubName.value.trim() || '동아리명'}(${representative.value.trim() || '대표자 성명'}).pdf`;}
+  clubName.addEventListener('input',updateFilename);representative.addEventListener('input',updateFilename);updateFilename();
+}
+
+const registrationForm=document.querySelector("[data-registration-form]");
+registrationForm?.addEventListener("invalid",event=>{const section=event.target.closest("details");if(section)section.open=true;},true);

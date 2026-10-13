@@ -6,6 +6,9 @@ import hmac
 import sqlite3
 import zipfile
 import io
+import json
+import unicodedata
+from pypdf import PdfReader
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from flask import (Flask, render_template, request, redirect, url_for, session, g,
@@ -39,9 +42,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('KDU_SECRET_KEY') or secrets.token_hex(32)
 app.config.update(MAX_CONTENT_LENGTH=32 * 1024 * 1024,
                   UPLOAD_FOLDER=str(BASE_DIR / 'static' / 'uploads'),
+                  REGISTRATION_FOLDER=os.environ.get('KDU_REGISTRATION_FOLDER', str(BASE_DIR / 'instance' / 'registration-packets')),
                   ATTACHMENT_FOLDER=os.environ.get('KDU_ATTACHMENT_FOLDER', str(BASE_DIR / 'instance' / 'attachments')),
                   SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
-CATEGORIES = {'학술': '학술 · 개발', '공연': '문화 · 예술', '체육': '체육', '봉사': '봉사'}
+CATEGORIES = {'학술':'학술', '체육':'체육', '예술':'예술', '취미·교양':'취미·교양', '종교':'종교', '사회·봉사':'사회·봉사'}
+OFFICIAL_CAMPUS = '메트로폴캠퍼스'
+OFFICIAL_START = datetime(2026,3,26)
+OFFICIAL_END = datetime(2026,4,1,23,59)
 STATUS_NAMES = {'pending': '심사 대기', 'approved': '승인 완료', 'rejected': '반려'}
 
 
@@ -74,7 +81,10 @@ def migrate_database(db):
                   'fee': "TEXT NOT NULL DEFAULT ''", 'requirements': "TEXT NOT NULL DEFAULT ''",
                   'activity_plan': "TEXT NOT NULL DEFAULT ''", 'rejection_reason': "TEXT NOT NULL DEFAULT ''",
                   'reviewed_at': 'TEXT', 'submitted_at': 'TEXT', 'submission_count': 'INTEGER NOT NULL DEFAULT 1',
-                  'current_round_id': 'INTEGER'},
+                  'current_round_id': 'INTEGER', 'registration_kind':"TEXT NOT NULL DEFAULT 'legacy'",
+                  'established_on':'TEXT', 'advisor_name':'TEXT', 'representative_name':'TEXT',
+                  'founding_member_count':'INTEGER', 'monthly_plan_json':"TEXT NOT NULL DEFAULT '{}'",
+                  'registration_attestations':"TEXT NOT NULL DEFAULT '{}'"},
         'club_members': {'availability': 'TEXT', 'goal': 'TEXT', 'personality': 'TEXT',
                          'recruitment_id': 'INTEGER', 'rejection_reason': "TEXT NOT NULL DEFAULT ''",
                          'submitted_at': 'TEXT', 'reviewed_at': 'TEXT'},
@@ -93,6 +103,10 @@ def migrate_database(db):
             id INTEGER PRIMARY KEY, club_id INTEGER NOT NULL REFERENCES clubs(id),
             starts_at TEXT, ends_at TEXT, capacity INTEGER NOT NULL DEFAULT 20 CHECK(capacity > 0),
             closed INTEGER NOT NULL DEFAULT 0);
+        CREATE TABLE IF NOT EXISTS registration_documents (
+            id INTEGER PRIMARY KEY, club_id INTEGER NOT NULL REFERENCES clubs(id),
+            user_id INTEGER NOT NULL REFERENCES users(id), submission_count INTEGER NOT NULL,
+            name TEXT NOT NULL, stored_name TEXT NOT NULL, size INTEGER NOT NULL, created_at TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS attachments (
             id INTEGER PRIMARY KEY, club_id INTEGER NOT NULL REFERENCES clubs(id),
             user_id INTEGER NOT NULL REFERENCES users(id), post_id INTEGER REFERENCES club_posts(id),
@@ -115,7 +129,7 @@ def init_db():
     """새 데모 DB 초기화용. 기존 DB에는 호출하지 않습니다."""
     with app.app_context():
         db = get_db()
-        db.executescript('DROP TABLE IF EXISTS attachments; DROP TABLE IF EXISTS recruitment_rounds;')
+        db.executescript('DROP TABLE IF EXISTS registration_documents; DROP TABLE IF EXISTS attachments; DROP TABLE IF EXISTS recruitment_rounds;')
         db.executescript((BASE_DIR / 'schema.sql').read_text(encoding='utf-8'))
         migrate_database(db)
 
@@ -201,6 +215,12 @@ FIELD_NAMES = {'name': '동아리명', 'description': '소개', 'activity_plan':
                'content': '본문', 'location': '장소', 'rejection_reason': '반려 사유'}
 
 
+FIELD_NAMES.update({'advisor_name':'지도교수','representative_name':'대표자'})
+for month in range(1,13):
+    FIELD_NAMES[f'monthly_activity_{month}']=f'{month}월 활동 내용'
+    FIELD_NAMES[f'monthly_effect_{month}']=f'{month}월 기대효과'
+
+
 def date_field(name):
     try:
         value = request.form.get(name, '').strip().replace('.', '-').replace(' ', 'T')
@@ -220,7 +240,9 @@ def notify(uid, message, kind, club_id, member_id=None):
 @app.context_processor
 def common_context():
     session.setdefault('csrf_token', secrets.token_hex(32))
-    return {'csrf_token': session['csrf_token'], 'categories': CATEGORIES, 'status_names': STATUS_NAMES}
+    return {'csrf_token':session['csrf_token'], 'categories':{**CATEGORIES,'공연':'예술','봉사':'사회·봉사'},
+            'category_options':CATEGORIES,'status_names':STATUS_NAMES,
+            'official_window_open':OFFICIAL_START<=now()<=OFFICIAL_END}
 
 
 @app.before_request
@@ -231,7 +253,7 @@ def protect_requests():
         if not expected or not hmac.compare_digest(expected, supplied):
             abort(400, description='요청이 만료되었습니다. 새로고침 후 다시 시도해주세요.')
     if session.get('role') == 'professor' and request.endpoint not in {
-        'professor_dashboard', 'login', 'logout', 'static', 'health'}:
+        'professor_dashboard', 'login', 'logout', 'static', 'health', 'official_guide', 'download_registration_packet'}:
         abort(403, description='교수 계정은 동아리 개설 심사만 이용합니다.')
 
 
@@ -296,8 +318,10 @@ def index():
         query += ' AND (name LIKE ? OR description LIKE ? OR campus LIKE ?)'
         params.extend([f'%{keyword}%'] * 3)
     if category != 'all':
-        query += ' AND category=?'
-        params.append(category)
+        aliases={'예술':['예술','공연'],'사회·봉사':['사회·봉사','봉사']}
+        selected=aliases.get(category,[category])
+        query += ' AND category IN ('+','.join('?' for _ in selected)+')'
+        params.extend(selected)
     clubs = [club_view(c) for c in rows(query + ' ORDER BY id', params)]
     recruiting_only = request.args.get('recruiting') == '1'
     if recruiting_only:
@@ -308,46 +332,120 @@ def index():
 
 
 def club_form_values():
-    category = request.form.get('category')
+    category=request.form.get('category')
     if category not in CATEGORIES:
-        raise ValueError('올바른 분류를 선택해주세요.')
-    return {'name': text_field('name', 2, 30), 'category': category,
-            'description': text_field('description', 10, 1000), 'activity_plan': text_field('activity_plan', 10, 2000),
-            'campus': text_field('campus', 1, 80), 'activity_time': text_field('activity_time', 1, 100),
-            'fee': text_field('fee', 1, 80), 'room_location': request.form.get('room_location', '').strip()[:100],
-            'requirements': text_field('requirements', 1, 500)}
+        raise ValueError('공식 모집 분야를 선택해주세요.')
+    if request.form.get('campus')!=OFFICIAL_CAMPUS:
+        raise ValueError('첨부 공고는 메트로폴캠퍼스에 한해 적용됩니다.')
+    kind=request.form.get('registration_kind')
+    if kind not in {'new','existing'}:
+        raise ValueError('신규 또는 기존 동아리를 선택해주세요.')
+    try:
+        established=datetime.strptime(request.form.get('established_on',''),'%Y-%m-%d').date()
+        if established>now().date():raise ValueError()
+    except ValueError:
+        raise ValueError('설립일자를 오늘 이전의 올바른 날짜로 입력해주세요.')
+    try:
+        count=int(request.form.get('founding_member_count',''))
+        if not 20<=count<=100000:raise ValueError()
+    except ValueError:
+        raise ValueError('등록 회원 수는 최소 20명이어야 합니다.')
+    confirmations=['eligibility_confirmed','forms_complete','roster_complete','dual_memberships_declared','signatures_confirmed']
+    if kind=='existing':confirmations.append('performance_report_confirmed')
+    if request.form.get('previously_closed')=='1':confirmations.append('closed_club_distinct_confirmed')
+    if any(request.form.get(key)!='1' for key in confirmations):
+        raise ValueError('재학 자격·필수 서류·회원 명단·중복 참여·서명 확인 항목을 모두 확인해주세요.')
+    monthly={str(month):{'activity':text_field(f'monthly_activity_{month}',1,1000),
+                         'effect':text_field(f'monthly_effect_{month}',0,500)} for month in range(1,13)}
+    name=text_field('name',2,30);representative=text_field('representative_name',1,30)
+    if any(char in name+representative for char in '<>:"/\\|?*'):
+        raise ValueError('동아리명과 대표자 이름에는 파일명으로 쓸 수 없는 문자를 넣지 마세요.')
+    return {'name':name,'category':category,'description':text_field('description',10,1000),
+            'activity_plan':text_field('activity_plan',10,2000),'campus':OFFICIAL_CAMPUS,
+            'activity_time':text_field('activity_time',1,100),'fee':text_field('fee',1,80),
+            'room_location':request.form.get('room_location','').strip()[:100],
+            'requirements':text_field('requirements',1,500),'registration_kind':kind,
+            'established_on':established.isoformat(),'advisor_name':text_field('advisor_name',1,50),
+            'representative_name':representative,'founding_member_count':count,
+            'monthly_plan_json':json.dumps(monthly,ensure_ascii=False),
+            'registration_attestations':json.dumps({k:True for k in confirmations},ensure_ascii=False)}
 
 
-@app.route('/clubs/register', methods=['GET', 'POST'])
-@app.route('/clubs/<int:club_id>/resubmit', methods=['GET', 'POST'])
+def registration_pdf(file,values):
+    if not file or not file.filename:
+        raise ValueError('서식을 순서대로 합친 PDF를 첨부해주세요. 재신청 시에도 보완본이 필요합니다.')
+    expected=f"{values['name']}({values['representative_name']}).pdf"
+    actual=Path(file.filename.replace('\\','/')).name
+    if unicodedata.normalize('NFC',actual)!=unicodedata.normalize('NFC',expected):
+        raise ValueError(f'공고에 따른 파일명은 {expected} 입니다.')
+    data=file.read(10*1024*1024+1)
+    if len(data)>10*1024*1024:raise ValueError('사이트 보관용 PDF는 10MB 이하여야 합니다.')
+    try:
+        pdf=PdfReader(io.BytesIO(data))
+        if pdf.is_encrypted or len(pdf.pages)==0 or not data.startswith(b'%PDF-'):
+            raise ValueError()
+    except Exception:
+        raise ValueError('읽을 수 있는 암호화되지 않은 PDF를 첨부해주세요.')
+    return data,expected
+
+
+@app.get('/official-guide')
+def official_guide():
+    return render_template('official_guide.html')
+
+
+@app.get('/registration-documents/<int:document_id>')
+def download_registration_packet(document_id):
+    doc=row('SELECT d.*,c.applicant_id FROM registration_documents d JOIN clubs c ON c.id=d.club_id WHERE d.id=?',(document_id,))
+    if not doc:abort(404)
+    if session.get('role')!='professor' and session.get('user_id')!=doc['applicant_id']:abort(403)
+    path=Path(app.config['REGISTRATION_FOLDER'])/doc['stored_name']
+    if not path.resolve().is_relative_to(Path(app.config['REGISTRATION_FOLDER']).resolve()) or not path.is_file():abort(404)
+    response=send_file(path,as_attachment=True,download_name=doc['name'])
+    response.headers['Cache-Control']='private, no-store'
+    return response
+
+
+@app.route('/clubs/register',methods=['GET','POST'])
+@app.route('/clubs/<int:club_id>/resubmit',methods=['GET','POST'])
 def register_club(club_id=None):
-    if session.get('role') != 'student':
-        return redirect(url_for('login'))
-    club = owned_club(club_id, approved=False) if club_id else None
-    if club and club['status'] != 'rejected':
-        abort(409, description='반려된 개설 신청만 수정 후 재신청할 수 있습니다.')
-    error = None
-    if request.method == 'POST':
+    if session.get('role')!='student':return redirect(url_for('login'))
+    club=owned_club(club_id,approved=False) if club_id else None
+    if club and club['status']!='rejected':abort(409,description='반려된 준비 자료만 수정 후 재검토할 수 있습니다.')
+    error=None;stored_path=None
+    if request.method=='POST':
         try:
-            values = club_form_values()
-            db = get_db()
-            db.execute('BEGIN IMMEDIATE')
+            values=club_form_values()
+            data,filename=registration_pdf(request.files.get('registration_pdf'),values)
+            db=get_db();db.execute('BEGIN IMMEDIATE')
             if club:
-                updated = db.execute('UPDATE clubs SET ' + ','.join(f'{key}=?' for key in values) +
-                                     ",status='pending',submitted_at=?,submission_count=submission_count+1 WHERE id=? AND status='rejected'",
-                                     (*values.values(), now().isoformat(timespec='minutes'), club_id))
-                if not updated.rowcount:
-                    abort(409)
+                updated=db.execute('UPDATE clubs SET '+','.join(f'{key}=?' for key in values)+
+                                   ",status='pending',submitted_at=?,submission_count=submission_count+1 WHERE id=? AND status='rejected'",
+                                   (*values.values(),now().isoformat(timespec='minutes'),club_id))
+                if not updated.rowcount:abort(409)
+                version=club['submission_count']+1
             else:
-                db.execute('INSERT INTO clubs(' + ','.join(values) + ',status,applicant_id,submitted_at) VALUES(' +
-                           ','.join('?' for _ in range(len(values)+3)) + ')',
-                           (*values.values(), 'pending', session['user_id'], now().isoformat(timespec='minutes')))
-            db.commit()
-            flash('개설 신청을 제출했습니다. 교수 심사 결과는 알림에서 확인할 수 있습니다.', 'success')
-            return redirect(url_for('student_mypage', tab='created'))
+                club_id=db.execute('INSERT INTO clubs('+','.join(values)+',status,applicant_id,submitted_at) VALUES('+
+                                   ','.join('?' for _ in range(len(values)+3))+')',
+                                   (*values.values(),'pending',session['user_id'],now().isoformat(timespec='minutes'))).lastrowid
+                version=1
+            folder=Path(app.config['REGISTRATION_FOLDER']);folder.mkdir(parents=True,exist_ok=True)
+            stored_path=folder/(uuid.uuid4().hex+'.pdf');stored_path.write_bytes(data)
+            db.execute('INSERT INTO registration_documents(club_id,user_id,submission_count,name,stored_name,size,created_at) VALUES(?,?,?,?,?,?,?)',
+                       (club_id,session['user_id'],version,filename,stored_path.name,len(data),now().isoformat(timespec='minutes')))
+            db.commit();stored_path=None
+            flash('서류 준비 자료를 저장했습니다. 학교 이메일 제출이나 최종 승인이 완료된 것은 아닙니다.','success')
+            return redirect(url_for('student_mypage',tab='created'))
         except ValueError as e:
-            error = str(e)
-    return render_template('register_club.html', club=club, values=request.form if request.method == 'POST' else dict(club or {}), error=error), 400 if error else 200
+            get_db().rollback();error=str(e)
+        finally:
+            if stored_path:stored_path.unlink(missing_ok=True)
+    vals=request.form if request.method=='POST' else dict(club or {})
+    if club and request.method!='POST':
+        for month,plan in json.loads(club['monthly_plan_json'] or '{}').items():
+            vals[f'monthly_activity_{month}']=plan.get('activity','');vals[f'monthly_effect_{month}']=plan.get('effect','')
+    docs=rows('SELECT * FROM registration_documents WHERE club_id=? ORDER BY id DESC',(club_id,)) if club else []
+    return render_template('register_club.html',club=club,values=vals,error=error,documents=docs),400 if error else 200
 
 
 @app.route('/clubs/apply/<int:club_id>', methods=['GET', 'POST'])
@@ -361,6 +459,8 @@ def apply_club(club_id):
     if request.method == 'POST':
         try:
             values = {key: text_field(key, 10 if key == 'reason' else 1, 500) for key in ('reason', 'availability', 'goal', 'personality')}
+            if club['campus']==OFFICIAL_CAMPUS and request.form.get('student_eligibility_confirmed')!='1':
+                raise ValueError('본교 학사과정 재학생이며 공고의 자격 제한에 해당하지 않음을 확인해주세요.')
             db = get_db()
             db.execute('BEGIN IMMEDIATE')
             club = row('SELECT * FROM clubs WHERE id=?', (club_id,))
@@ -461,7 +561,8 @@ def student_mypage():
         return redirect(url_for('login'))
     uid = session['user_id']
     applications = rows('SELECT m.*, c.name,c.category,c.campus,c.activity_time,c.fee,c.status club_status FROM club_members m JOIN clubs c ON m.club_id=c.id WHERE m.user_id=? ORDER BY m.id DESC', (uid,))
-    created = rows('SELECT * FROM clubs WHERE applicant_id=? ORDER BY id DESC', (uid,))
+    created = [dict(c,documents=rows('SELECT * FROM registration_documents WHERE club_id=? ORDER BY id DESC',(c['id'],)))
+               for c in rows('SELECT * FROM clubs WHERE applicant_id=? ORDER BY id DESC',(uid,))]
     favorites = rows("SELECT c.* FROM clubs c JOIN club_favorites f ON f.club_id=c.id WHERE f.user_id=? AND c.status='approved'", (uid,))
     return render_template('student_mypage.html', applications=applications, created=created,
                            favorites=[club_view(c) for c in favorites], joined=[a for a in applications if a['status']=='approved'],
@@ -609,16 +710,23 @@ def professor_dashboard():
             if not club:
                 abort(404)
             if club['status']=='pending':
+                if action=='approve':
+                    if club['registration_kind']=='legacy' or not row('SELECT id FROM registration_documents WHERE club_id=? AND submission_count=?',(club['id'],club['submission_count'])):
+                        raise ValueError('공식 기준으로 보완한 PDF 준비본이 필요합니다. 신청자에게 보완 요청해주세요.')
+                    if request.form.get('documents_reviewed')!='1':
+                        raise ValueError('PDF의 필수 서식·최소 20명·자격·중복 참여·서명을 직접 확인해주세요.')
                 db.execute("UPDATE clubs SET status=?,rejection_reason=?,reviewed_at=? WHERE id=? AND status='pending'",
                            ('approved' if action=='approve' else 'rejected',rejection,now().isoformat(timespec='minutes'),club['id']))
-                notify(club['applicant_id'],f"{club['name']} 개설 신청이 {'승인' if action=='approve' else '반려'}되었어요.",'club',club['id'])
+                notify(club['applicant_id'],f"{club['name']} 등록 준비 자료가 {'사전 확인 완료' if action=='approve' else '보완 요청'}되었어요. 학교 최종 승인과는 별개입니다.",'club',club['id'])
             db.commit()
             return redirect(url_for('professor_dashboard',club=club['id']))
         except ValueError as e:
             get_db().rollback();flash(str(e),'error')
     clubs=rows('SELECT c.*,u.name applicant_name FROM clubs c LEFT JOIN users u ON c.applicant_id=u.id ORDER BY c.id DESC')
     selected=next((c for c in clubs if c['id']==request.args.get('club',type=int)),None) or next((c for c in clubs if c['status']=='pending'),None)
-    return render_template('professor_dashboard.html',clubs=clubs,selected=selected)
+    return render_template('professor_dashboard.html',clubs=clubs,selected=selected,
+                           monthly_plan=json.loads(selected['monthly_plan_json'] or '{}') if selected else {},
+                           documents=rows('SELECT * FROM registration_documents WHERE club_id=? ORDER BY id DESC',(selected['id'],)) if selected else [])
 
 
 @app.route('/clubs/<int:club_id>/schedules',methods=['GET','POST'])

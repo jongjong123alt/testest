@@ -59,7 +59,7 @@ with app.app.app_context():
  app.notify(1,'KDU 코딩클럽 가입이 승인되었어요.','membership',1,mid)
  mid=db.execute('SELECT id FROM club_members WHERE user_id=1 AND club_id=3').fetchone()[0]
  app.notify(1,'피닉스 FC 가입 신청이 반려되었어요.','membership',3,mid)
- app.notify(1,'KDU 코딩클럽 개설이 승인되었어요.','club',1)
+ app.notify(1,'KDU 코딩클럽 등록 서류 사전 확인 예시입니다. 학교 최종 승인과는 별개입니다.','club',1)
  db.execute('UPDATE notifications SET is_read=1 WHERE id=(SELECT MAX(id) FROM notifications)')
  db.commit()
 print('샘플 DB:',output)

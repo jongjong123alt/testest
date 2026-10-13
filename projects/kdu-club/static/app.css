@@ -3,3 +3,6 @@
 .page-heading .eyebrow{color:var(--blue);margin:0 0 10px}.bookmark .icon:not(.blue){opacity:.45}.login-layout{grid-template-columns:1fr 520px;gap:50px}
 
 .members-scroll{max-height:210px;overflow-y:auto}.members-scroll thead{position:sticky;top:0;background:white}.members-scroll:focus-within{outline:2px solid var(--blue-soft)}
+.monthly-plan{border-bottom:1px solid var(--line);padding:14px 0}.monthly-plan summary{font-weight:700;cursor:pointer;margin-bottom:14px}.check-list{display:grid;gap:18px}.check-list .checkbox{align-items:flex-start;line-height:1.8}.check-list input{flex-shrink:0;margin-top:4px}
+
+.official-docs-table th,.official-docs-table td{text-align:left!important;vertical-align:top}.official-docs-table th:first-child{width:25%}.official-docs-table th:nth-child(2){width:18%}

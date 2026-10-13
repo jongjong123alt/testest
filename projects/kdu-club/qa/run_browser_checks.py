@@ -14,7 +14,7 @@ with tempfile.TemporaryDirectory(prefix='kdu-browser-') as temp:
     with socket.socket() as sock:
         sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
     url=f'http://127.0.0.1:{port}'
-    env={**os.environ,'KDU_DATABASE':str(db),'KDU_ATTACHMENT_FOLDER':str(Path(temp)/'demo-attachments'),'KDU_QA_URL':url}
+    env={**os.environ,'KDU_DATABASE':str(db),'KDU_ATTACHMENT_FOLDER':str(Path(temp)/'demo-attachments'),'KDU_REGISTRATION_FOLDER':str(Path(temp)/'registration-packets'),'KDU_QA_URL':url}
     with (Path(temp)/'server.log').open('w') as log:
         server=subprocess.Popen([sys.executable,'-m','flask','--app','app','run','--host','127.0.0.1','--port',str(port)],cwd=root,env=env,stdout=log,stderr=log)
         try:

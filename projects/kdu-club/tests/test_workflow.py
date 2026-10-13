@@ -287,6 +287,54 @@ class WorkflowTests(unittest.TestCase):
             r=self.owner.get(path);self.assertEqual(r.status_code,200,path);self.assertIn('KDU 동아리',r.text)
         self.assertEqual(self.prof.get('/professor/dashboard').status_code,200)
 
+    def test_login_without_system_timezone_database(self):
+        import zoneinfo
+        from datetime import timedelta, timezone
+        original_path=zoneinfo.TZPATH
+        module.app.config.pop('NOW',None)
+        zoneinfo.reset_tzpath([])
+        zoneinfo.ZoneInfo.clear_cache()
+        try:
+            before=datetime.now(timezone(timedelta(hours=9))).replace(tzinfo=None)
+            actual=module.now()
+            after=datetime.now(timezone(timedelta(hours=9))).replace(tzinfo=None)
+            self.assertLessEqual(before,actual);self.assertLessEqual(actual,after)
+            c=module.app.test_client();c.get('/login')
+            with c.session_transaction() as session:token=session['csrf_token']
+            result=c.post('/login',data=dict(csrf_token=token,username='20211234',password='1234'),follow_redirects=True)
+            self.assertEqual(result.status_code,200)
+            self.assertIn('함께할 동아리를 찾아보세요',result.text)
+        finally:
+            zoneinfo.reset_tzpath(original_path);zoneinfo.ZoneInfo.clear_cache()
+
+    def test_incomplete_recruitment_does_not_break_login_or_management(self):
+        self.execute('UPDATE recruitment_rounds SET starts_at=NULL,ends_at=NULL WHERE club_id=1')
+        self.assertEqual(self.student.get('/').status_code,200)
+        self.assertIn('미설정',self.student.get('/clubs/1').text)
+        self.assertEqual(self.owner.get('/clubs/1/manage').status_code,200)
+        self.assertEqual(self.apply().status_code,400)
+        self.assertEqual(self.post(self.owner,'/clubs/1/manage',self.manager_fields()).status_code,302)
+        self.assertEqual(self.apply().status_code,302)
+
+    def test_invalid_recruitment_values_remain_closed_without_500(self):
+        for starts,ends,capacity in [('invalid','2026-10-31T23:59',20),('2026-10-01T09:00','2026-09-30T09:00',20),('2026-10-01T09:00','2026-10-31T23:59','invalid')]:
+            self.execute('UPDATE recruitment_rounds SET starts_at=?,ends_at=?,capacity=? WHERE club_id=1',(starts,ends,capacity))
+            self.assertEqual(self.student.get('/').status_code,200)
+            self.assertEqual(self.student.get('/clubs/1').status_code,200)
+            self.assertEqual(self.apply().status_code,400)
+
+    def test_schema_initialization_with_windows_default_encoding(self):
+        from unittest.mock import patch
+        original=Path.read_text
+        def windows_read(path,*args,**kwargs):
+            if not args and 'encoding' not in kwargs:
+                kwargs['encoding']='cp949'
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'read_text',windows_read):
+            module.init_db()
+        self.assertEqual(len(self.rows('SELECT * FROM clubs')),3)
+        self.assertTrue(check_password_hash(self.rows('SELECT password FROM users WHERE id=1')[0]['password'],'1234'))
+
     def test_migration_repeatable_preserves_data(self):
         before=self.rows('SELECT * FROM users')
         with module.app.app_context():

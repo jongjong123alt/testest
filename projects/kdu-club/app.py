@@ -6,8 +6,7 @@ import hmac
 import sqlite3
 import zipfile
 import io
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from flask import (Flask, render_template, request, redirect, url_for, session, g,
                    abort, flash, jsonify, send_file)
@@ -49,7 +48,8 @@ STATUS_NAMES = {'pending': '심사 대기', 'approved': '승인 완료', 'reject
 def now():
     """학교 현지 시각으로 모든 모집·일정 경계를 판단합니다."""
     override = app.config.get('NOW')
-    return override() if override else datetime.now(ZoneInfo('Asia/Seoul')).replace(tzinfo=None)
+    # 현재 한국 시각은 UTC+09:00입니다. Windows의 시스템 시간대 DB에 의존하지 않습니다.
+    return override() if override else datetime.now(timezone(timedelta(hours=9))).replace(tzinfo=None)
 
 
 def get_db():
@@ -116,7 +116,7 @@ def init_db():
     with app.app_context():
         db = get_db()
         db.executescript('DROP TABLE IF EXISTS attachments; DROP TABLE IF EXISTS recruitment_rounds;')
-        db.executescript((BASE_DIR / 'schema.sql').read_text())
+        db.executescript((BASE_DIR / 'schema.sql').read_text(encoding='utf-8'))
         migrate_database(db)
 
 
@@ -166,11 +166,22 @@ def recruitment(club):
         return {'id': None, 'starts_at': '', 'ends_at': '', 'capacity': 0, 'approved': 0, 'pending': 0, 'state': '미설정', 'open': False}
     approved = row("SELECT COUNT(*) n FROM club_members WHERE recruitment_id=? AND status='approved'", (r['id'],))['n']
     pending = row("SELECT COUNT(*) n FROM club_members WHERE recruitment_id=? AND status='pending'", (r['id'],))['n']
-    current = now().isoformat(timespec='minutes')
-    state = '모집 예정' if current < r['starts_at'] else '모집중'
-    if r['closed'] or current > r['ends_at'] or approved >= r['capacity']:
+    # 이전 버전/미완성 모집 정보는 신규 신청을 막고 관리 화면에서 보완합니다.
+    try:
+        starts = datetime.fromisoformat(r['starts_at'])
+        ends = datetime.fromisoformat(r['ends_at'])
+        capacity = int(r['capacity'])
+        if starts.tzinfo or ends.tzinfo or ends <= starts or capacity < 1:
+            raise ValueError()
+    except (TypeError, ValueError):
+        return {**dict(r), 'starts_at': r['starts_at'] or '', 'ends_at': r['ends_at'] or '',
+                'capacity': 0, 'approved': approved, 'pending': pending, 'state': '미설정', 'open': False}
+    current = now().replace(second=0, microsecond=0)
+    state = '모집 예정' if current < starts else '모집중'
+    if r['closed'] or current > ends or approved >= capacity:
         state = '모집 마감'
-    return {**dict(r), 'approved': approved, 'pending': pending, 'state': state, 'open': state == '모집중'}
+    return {**dict(r), 'capacity': capacity, 'approved': approved, 'pending': pending,
+            'state': state, 'open': state == '모집중'}
 
 
 def club_view(club):

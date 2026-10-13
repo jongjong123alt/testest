@@ -76,7 +76,7 @@ PDF, HWP, DOCX, JPG/JPEG, PNG를 파일당 10MiB 이하, 공지당 최대 3개�
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-Windows에서는 `.venv/bin/python` 대신 `.\.venv\Scripts\python.exe`를 사용하세요. 자동 테스트 31개가 임시 DB에서 통과했습니다. 기존 데이터는 건드리지 않습니다. Chromium·Playwright로 D01–D12와 팝업/오류 상태를 검증했고 콘솔 오류는 없었습니다.
+Windows에서는 `.venv/bin/python` 대신 `.\.venv\Scripts\python.exe`를 사용하세요. 자동 테스트 35개가 임시 DB에서 통과했습니다. 기존 데이터는 건드리지 않습니다. Chromium·Playwright로 D01–D12와 팝업/오류 상태를 검증했고 콘솔 오류는 없었습니다.
 
 브라우저 QA를 다시 실행하려면 Node.js와 Playwright 및 Chromium이 필요합니다. 별도 작업 디렉터리에 Playwright를 설치하고 `NODE_PATH`를 해당 `node_modules` 경로로 설정하거나 현재 프로젝트에서 Playwright를 사용 가능하게 준비한 뒤 다음을 실행하세요.
 
@@ -85,3 +85,7 @@ Windows에서는 `.venv/bin/python` 대신 `.\.venv\Scripts\python.exe`를 사�
 ```
 
 `CHROMIUM_PATH`로 브라우저 경로를 지정할 수 있습니다. QA 실행기는 임시 샘플 DB와 서버만 생성하고 종료합니다. 캡처는 `qa/screenshots`, 결과는 `qa/browser-results.json`에 저장합니다. 자세한 검증 범위는 `VERIFICATION.md`, 디자인 확인 범위는 `design-qa.md`를 참고하세요.
+
+## 로그인 후 500 오류 수정
+
+Windows의 시스템 시간대 데이터 유무와 관계없이 한국 시각을 계산하도록 수정했습니다. 모집 날짜가 비어 있거나 잘못 저장된 경우에는 미설정 상태로 표시하고 신청을 제한합니다. 새 DB 초기화 파일은 UTF-8로 읽습니다. 기존 DB를 삭제하거나 재생성할 필요는 없습니다. 서버를 종료하고 최신 app.py로 재실행한 뒤 다시 로그인하세요. 기존 계정은 python app.py --original로 사용할 수 있습니다.

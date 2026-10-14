@@ -6,3 +6,5 @@
 입력/파일: text_field/date_field/validated_upload/registration_pdf. 상태 변경 알림: manage_member/professor_dashboard→notify.
 오류: HTTPException handler와 각 POST의 ValueError rollback. 정상 응답 후 다음 요청을 받는 HTTP 서버입니다. 로그아웃은 세션만 종료합니다. 서버 종료는 Ctrl+C입니다.
 서버 시작 전 DB 생성 오류는 터미널에 출력되고 시작이 중단될 수 있습니다. 순서도의 일반 오류 응답은 서버가 시작된 후의 요청 오류를 의미합니다.
+
+실선은 요청의 제어 흐름, 점선은 공통 DB의 조회·저장 관계입니다. 조회 화살표를 DB 초기화 재실행으로 해석하지 않습니다. 시작 단계에서 DB 생성·보완이 실패하면 터미널에 오류가 표시되고 서버가 시작되지 않습니다. 서버 대기 중 Ctrl+C 종료도 표시했습니다.

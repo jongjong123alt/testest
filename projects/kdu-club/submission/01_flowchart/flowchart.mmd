@@ -1,3 +1,4 @@
+%% 실선: 제어 흐름 / 점선: 데이터 조회·저장
 flowchart TD
     S(["시작: python app.py"])
     D["DB 경로 / 실행 옵션 결정"]
@@ -32,8 +33,8 @@ flowchart TD
     E -->|"없음"| SE
     E -->|"있음"| MG
     SE --> MG
-    SE -->|"생성"| DB
-    DB -->|"읽기/보완"| MG
+    SE -.->|"생성"| DB
+    DB -.->|"읽기/보완"| MG
     MG --> RUN
     RUN -->|"요청"| IN
     IN --> CS
@@ -45,10 +46,10 @@ flowchart TD
     ROLE -->|"학생"| ST
     ROLE -->|"교수"| PR
     ST --> VIEW
-    PR -->|"조회"| VIEW
+    PR -.->|"조회"| VIEW
     PR -->|"심사 POST"| VAL
     MENU -->|"탐색/상세"| SEARCH
-    SEARCH -->|"조회"| DB
+    SEARCH -.->|"조회"| DB
     SEARCH --> VIEW
     MENU -->|"가입/취소"| APPLY
     MENU -->|"개설/재신청"| CREATE
@@ -59,15 +60,15 @@ flowchart TD
     OWNER -->|"조회 GET"| VIEW
     VAL -->|"아니오"| ERR
     VAL -->|"예"| TX
-    TX -->|"저장"| DB
+    TX -.->|"저장"| DB
     TX -->|"예외 / 롤백"| ERR
     TX -->|"성공"| NOTIFY
     NOTIFY -->|"심사 상태 변경"| N
     NOTIFY -->|"일반 저장/이미 처리됨"| VIEW
-    N -->|"알림 저장"| DB
+    N -.->|"알림 저장"| DB
     N --> VIEW
     MENU -->|"알림"| READ
-    READ -->|"조회/읽음 저장"| DB
+    READ -.->|"조회/읽음 저장"| DB
     READ --> VIEW
     MENU -->|"로그아웃"| LOGOUT
     LOGOUT --> VIEW
@@ -75,3 +76,9 @@ flowchart TD
     VIEW -->|"요청 DB 연결 닫기"| ENDQ
     ENDQ -->|"계속"| RUN
     ENDQ -->|"종료"| END
+    BOOTERR[/"시작 단계 오류를 터미널에 출력"/]
+    BOOTEND(["서버 시작 중단"])
+    SE -->|"생성 실패"| BOOTERR
+    MG -->|"DB 보완 실패"| BOOTERR
+    BOOTERR --> BOOTEND
+    RUN -->|"Ctrl+C"| END

@@ -13,4 +13,4 @@
 
 [전체 제출 ZIP 다운로드](https://github.com/jongjong123alt/testest/raw/refs/heads/master/projects/kdu-club/project_final_submission.zip) · [산출물 안내](projects/kdu-club/submission/README.md) · [전체 파일 목록](projects/kdu-club/submission/file_list.md)
 
-플로우차트·보고서·전체 소스·한국어 주석 소스·UI 최초 적용 AI 초안·7장 체크리스트 검증 기록·발표 PPT 및 대본을 포함합니다. 학번·이름 작성란, 학생 직접 수행 기록과 추가 보고서 양식은 제출 전 확인하세요.
+플로우차트·보고서·전체 소스·한국어 주석 소스·UI 최초 적용 AI 초안·7장 체크리스트 검증 기록·발표 PPT 및 대본을 포함합니다. 첨부 HWP 표지 양식을 반영했습니다. 학번·이름 작성란, 학생 직접 수행 기록과 개인 소감은 제출 전 보완하세요.

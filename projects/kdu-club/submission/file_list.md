@@ -6,6 +6,7 @@
 - 01_flowchart/flowchart.png
 - 01_flowchart/flowchart_overview.dot
 - 01_flowchart/flowchart_overview.png
+- 02_report/cover_assets/kdu_logo.jpg
 - 02_report/project_report.docx
 - 02_report/project_report.pdf
 - 02_report/screenshots/D01-login-error.png
@@ -193,6 +194,7 @@
 - 06_ai_revision_verification/evidence/nonpython_comment_equivalence.json
 - 06_ai_revision_verification/evidence/original_project_inventory.txt
 - 06_ai_revision_verification/evidence/project_tree.txt
+- 06_ai_revision_verification/evidence/report_template_analysis.md
 - 06_ai_revision_verification/evidence/source_tests.log
 - 06_ai_revision_verification/evidence/ui_draft_hashes.json
 - 06_ai_revision_verification/student_review_tasks.md

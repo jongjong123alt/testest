@@ -24,7 +24,7 @@
     "05_ai_initial_draft/ai_draft_explanation.pdf": {
       "pdf_open": "passed",
       "pages": 2,
-      "text_chars": 1594
+      "text_chars": 1592
     },
     "06_ai_revision_verification/ai_revision_verification.pdf": {
       "pdf_open": "passed",
@@ -43,8 +43,8 @@
     },
     "02_report/project_report.pdf": {
       "pdf_open": "passed",
-      "pages": 12,
-      "text_chars": 9174
+      "pages": 11,
+      "text_chars": 9327
     },
     "01_flowchart/flowchart.pdf": {
       "pdf_open": "passed",
@@ -78,6 +78,15 @@
   },
   "checklist_original_available": true,
   "student_direct_edits": "unconfirmed",
-  "report_template": "not attached / needs confirmation",
-  "rendering": "LibreOffice converted every DOCX and PPTX to PDF; key pages/slides inspected as raster images. Minor font cache warnings occurred; rendered Korean glyphs were readable."
+  "report_template": "provided HWP cover layout applied",
+  "rendering": "LibreOffice converted every DOCX and PPTX to PDF; key pages/slides inspected as raster images. Minor font cache warnings occurred; rendered Korean glyphs were readable.",
+  "report_template_cover": {
+    "source": "user uploaded HWP 5.0",
+    "layout_applied": true,
+    "first_page_fields_verified": true,
+    "identity_blank": true,
+    "old_project_title_removed": true,
+    "no_blank_pages": true,
+    "body_start_page": 2
+  }
 }

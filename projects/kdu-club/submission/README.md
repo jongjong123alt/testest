@@ -6,7 +6,7 @@
 |폴더|핵심 파일|상태|
 |---|---|---|
 |01_flowchart|flowchart.png / flowchart.pdf / flowchart.mmd|실제 동작 흐름 기준 작성. DOT와 보고서용 개요도 추가|
-|02_report|project_report.docx / project_report.pdf / screenshots/|13개 구성 작성, 실제 실행 캡처 18개 포함. 추가 보고서 양식 첨부 확인 필요|
+|02_report|project_report.docx / project_report.pdf / screenshots/|13개 구성 작성, 실제 실행 캡처 18개 포함. 첨부 HWP 표지 양식 반영|
 |03_source_code|source_code.zip / README.md / requirements.txt / kdu_club_project/|전체 실행 소스와 초기화 코드 포함. 개인 DB·서류 제외|
 |04_commented_code|commented_source_code.zip / kdu_club_project/ / commentary_guide.md|한국어 기능 주석. 처리 코드 AST 일치 및 42개 테스트 통과|
 |05_ai_initial_draft|ai_draft_explanation.docx / .pdf / ai_initial_draft/ui_initial_draft_2fdda11/|실제 Git 소스 추출. 업로드 ZIP을 초안으로 사용하지 않음|
@@ -31,7 +31,7 @@
 
 ## 제출 전에 직접 보완할 부분
 1. 학번·이름 작성란에 본인 정보를 넣으세요. 교수 안내에 따라 실제 제출 ZIP 이름은 학번_이름_2회차.zip으로 바꾸세요. 요청하신 기본 파일명은 project_final_submission.zip입니다.
-2. 보고서에 따로 사용할 양식은 현재 첨부 확인이 필요합니다. 지금 파일은 요청한 13개 구성으로 작성했습니다.
+2. 보고서 표지는 첨부 HWP 양식의 구성을 반영했고 본문은 요청한 13개 구성입니다. 최종 한글 서식과 교수·학과 정보를 확인하세요.
 3. AI가 만든 기능을 학생 본인 직접 작성으로 기록하지 않았습니다. student_review_tasks.md의 후보를 이해하고 실제로 수행한 수정·검증만 본인 기록에 보완하세요. 교수의 “본인 수정” 조건 충족은 그 전에는 확정할 수 없습니다.
 4. 개인 소감은 작성 초안으로 표시했습니다. 본인의 실제 경험으로 수정하세요.
 5. 교수 아이디어 승인 원본과 본인 학습/작업 기록을 확인하세요. 대화에 전달된 승인 의견과 원본 승인은 구분했습니다.

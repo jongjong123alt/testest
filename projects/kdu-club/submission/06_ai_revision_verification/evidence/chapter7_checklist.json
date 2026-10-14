@@ -1,0 +1,26 @@
+[
+  [
+    "외부 API 연동",
+    "API 요청이 실패했을 때(응답 없음, 오류) 화면이 깨지지 않고 적절히 처리되는가? API 키가 코드나 GitHub에 노출되지 않았는가?",
+    "미선택 / 해당 없음",
+    "외부 API 호출을 구현하지 않았습니다. 학교 SSO나 외부 알림도 없습니다."
+  ],
+  [
+    "파일 업로드",
+    "허용하지 않은 확장자나 지나치게 큰 파일을 올리면 거부되는가?",
+    "검증됨",
+    "test_upload_type_size_and_content, test_valid_file_formats, test_post_attachment_limit_and_cross_club. 공지 10MiB/3개, 허용 형식·실제 내용 검증. 등록 PDF는 선택이지만 파싱/10MiB 제한 유지."
+  ],
+  [
+    "검색·필터",
+    "조건에 특수문자나 따옴표를 넣어도 오류 없이 동작하는가 (SQL 인젝션 방지)?",
+    "검증됨",
+    "test_search_binding_and_category 및 Chromium 검색: 작은따옴표/SQL 형태 입력과 분야·모집 필터. index()는 ? 바인딩과 매개변수 목록 사용."
+  ],
+  [
+    "알림",
+    "같은 이벤트로 알림이 중복 발송되지 않는가? 조건에 안 맞는 사용자에게 잘못 가지 않는가?",
+    "검증됨",
+    "test_creation_approval_and_notification_once, test_member_authorization_and_repeat, test_notification_read_scope_and_result, test_read_all_scoped. 대기→처리 때만 지정 사용자에 알림, 소유자 범위 조회."
+  ]
+]

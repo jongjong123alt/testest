@@ -1,0 +1,57 @@
+test_all_desktop_screens_render (test_workflow.WorkflowTests.test_all_desktop_screens_render) ... ok
+test_application_required_fields_and_duplicate (test_workflow.WorkflowTests.test_application_required_fields_and_duplicate) ... ok
+test_cancellation_only_pending (test_workflow.WorkflowTests.test_cancellation_only_pending) ... ok
+test_capacity_and_closed_period_review (test_workflow.WorkflowTests.test_capacity_and_closed_period_review) ... ok
+test_concurrent_capacity_approval (test_workflow.WorkflowTests.test_concurrent_capacity_approval) ... ok
+test_creation_approval_and_notification_once (test_workflow.WorkflowTests.test_creation_approval_and_notification_once) ... ok
+test_creation_validation_preserves_fields (test_workflow.WorkflowTests.test_creation_validation_preserves_fields) ... ok
+test_csrf_rejected (test_workflow.WorkflowTests.test_csrf_rejected) ... ok
+test_favorites_toggle_and_user_scope (test_workflow.WorkflowTests.test_favorites_toggle_and_user_scope) ... ok
+test_incomplete_recruitment_does_not_break_login_or_management (test_workflow.WorkflowTests.test_incomplete_recruitment_does_not_break_login_or_management) ... ok
+test_invalid_recruitment_values_remain_closed_without_500 (test_workflow.WorkflowTests.test_invalid_recruitment_values_remain_closed_without_500) ... ok
+test_login_without_system_timezone_database (test_workflow.WorkflowTests.test_login_without_system_timezone_database) ... ok
+test_manager_validation_and_immutable_name (test_workflow.WorkflowTests.test_manager_validation_and_immutable_name) ... ok
+test_member_authorization_and_repeat (test_workflow.WorkflowTests.test_member_authorization_and_repeat) ... ok
+test_member_rejection_and_result (test_workflow.WorkflowTests.test_member_rejection_and_result) ... ok
+test_metropol_applicant_without_official_eligibility_confirmation (test_workflow.WorkflowTests.test_metropol_applicant_without_official_eligibility_confirmation) ... ok
+test_migration_repeatable_preserves_data (test_workflow.WorkflowTests.test_migration_repeatable_preserves_data) ... ok
+test_new_round_counts_exclude_old_members (test_workflow.WorkflowTests.test_new_round_counts_exclude_old_members) ... ok
+test_new_round_requires_processing_pending (test_workflow.WorkflowTests.test_new_round_requires_processing_pending) ... ok
+test_notification_read_scope_and_result (test_workflow.WorkflowTests.test_notification_read_scope_and_result) ... ok
+test_official_pdf_privacy_and_monthly_plan (test_workflow.WorkflowTests.test_official_pdf_privacy_and_monthly_plan) ... /workspace/testest/projects/kdu-club/submission/04_commented_code/kdu_club_project/tests/test_workflow.py:426: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/tmpj52bi6hj/registration-packets/6f1d3534d4ea4b269fda27d798a14ec1.pdf'>
+  self.assertEqual(self.owner.get(f"/registration-documents/{doc['id']}").status_code,200)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/workspace/testest/projects/kdu-club/submission/04_commented_code/kdu_club_project/tests/test_workflow.py:427: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/tmpj52bi6hj/registration-packets/6f1d3534d4ea4b269fda27d798a14ec1.pdf'>
+  self.assertEqual(self.prof.get(f"/registration-documents/{doc['id']}").status_code,200)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_password_hash_and_login (test_workflow.WorkflowTests.test_password_hash_and_login) ... ok
+test_post_attachment_limit_and_cross_club (test_workflow.WorkflowTests.test_post_attachment_limit_and_cross_club) ... ok
+test_post_multiple_attachments_edit_remove_and_preserve (test_workflow.WorkflowTests.test_post_multiple_attachments_edit_remove_and_preserve) ... /workspace/testest/projects/kdu-club/submission/04_commented_code/kdu_club_project/tests/test_workflow.py:276: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/tmpd958wto7/attachments/637bace0ff1b4310a25ed23a2fe94411.pdf'>
+  self.assertEqual(self.student.get(f'/attachments/{aid}').status_code,200)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_post_validation_preserves_fields (test_workflow.WorkflowTests.test_post_validation_preserves_fields) ... ok
+test_private_qna_enforced (test_workflow.WorkflowTests.test_private_qna_enforced) ... ok
+test_professor_only_review (test_workflow.WorkflowTests.test_professor_only_review) ... ok
+test_read_all_scoped (test_workflow.WorkflowTests.test_read_all_scoped) ... ok
+test_recruitment_dates_and_filter (test_workflow.WorkflowTests.test_recruitment_dates_and_filter) ... ok
+test_registration_existing_and_closed_clubs_without_attestations (test_workflow.WorkflowTests.test_registration_existing_and_closed_clubs_without_attestations) ... ok
+test_registration_free_filename_optional_forms_and_valid_pdf (test_workflow.WorkflowTests.test_registration_free_filename_optional_forms_and_valid_pdf) ... EOF marker not found
+ok
+test_registration_no_official_population_campus_or_date_limits (test_workflow.WorkflowTests.test_registration_no_official_population_campus_or_date_limits) ... ok
+test_registration_preparation_independent_of_notice_dates (test_workflow.WorkflowTests.test_registration_preparation_independent_of_notice_dates) ... ok
+test_rejection_reason_required_and_resubmission (test_workflow.WorkflowTests.test_rejection_reason_required_and_resubmission) ... ok
+test_review_without_pdf_or_manual_attestation (test_workflow.WorkflowTests.test_review_without_pdf_or_manual_attestation) ... ok
+test_schedule_create_edit_delete_and_validation (test_workflow.WorkflowTests.test_schedule_create_edit_delete_and_validation) ... ok
+test_schedule_cross_club_ids (test_workflow.WorkflowTests.test_schedule_cross_club_ids) ... ok
+test_schema_initialization_with_windows_default_encoding (test_workflow.WorkflowTests.test_schema_initialization_with_windows_default_encoding) ... ok
+test_search_binding_and_category (test_workflow.WorkflowTests.test_search_binding_and_category) ... ok
+test_unknown_ids_and_invalid_actions (test_workflow.WorkflowTests.test_unknown_ids_and_invalid_actions) ... ok
+test_upload_type_size_and_content (test_workflow.WorkflowTests.test_upload_type_size_and_content) ... ok
+test_valid_file_formats (test_workflow.WorkflowTests.test_valid_file_formats) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 9.579s
+
+OK

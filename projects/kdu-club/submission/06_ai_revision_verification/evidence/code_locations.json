@@ -1,0 +1,198 @@
+{
+  "now": {
+    "line": 51,
+    "end": 55
+  },
+  "get_db": {
+    "line": 58,
+    "end": 63
+  },
+  "close_connection": {
+    "line": 67,
+    "end": 70
+  },
+  "migrate_database": {
+    "line": 73,
+    "end": 121
+  },
+  "init_db": {
+    "line": 124,
+    "end": 130
+  },
+  "row": {
+    "line": 139,
+    "end": 140
+  },
+  "rows": {
+    "line": 143,
+    "end": 144
+  },
+  "student_required": {
+    "line": 147,
+    "end": 149
+  },
+  "owned_club": {
+    "line": 152,
+    "end": 159
+  },
+  "visible_club": {
+    "line": 162,
+    "end": 170
+  },
+  "recruitment": {
+    "line": 173,
+    "end": 194
+  },
+  "club_view": {
+    "line": 197,
+    "end": 198
+  },
+  "text_field": {
+    "line": 201,
+    "end": 205
+  },
+  "date_field": {
+    "line": 220,
+    "end": 228
+  },
+  "notify": {
+    "line": 231,
+    "end": 233
+  },
+  "common_context": {
+    "line": 237,
+    "end": 240
+  },
+  "protect_requests": {
+    "line": 244,
+    "end": 252
+  },
+  "http_error": {
+    "line": 256,
+    "end": 260
+  },
+  "health": {
+    "line": 264,
+    "end": 265
+  },
+  "login": {
+    "line": 269,
+    "end": 277
+  },
+  "signup": {
+    "line": 281,
+    "end": 297
+  },
+  "logout": {
+    "line": 301,
+    "end": 303
+  },
+  "index": {
+    "line": 307,
+    "end": 326
+  },
+  "club_form_values": {
+    "line": 329,
+    "end": 357
+  },
+  "registration_pdf": {
+    "line": 360,
+    "end": 372
+  },
+  "official_guide": {
+    "line": 376,
+    "end": 377
+  },
+  "download_registration_packet": {
+    "line": 381,
+    "end": 389
+  },
+  "register_club": {
+    "line": 394,
+    "end": 432
+  },
+  "apply_club": {
+    "line": 436,
+    "end": 463
+  },
+  "cancel_apply": {
+    "line": 467,
+    "end": 472
+  },
+  "toggle_favorite": {
+    "line": 476,
+    "end": 488
+  },
+  "club_detail": {
+    "line": 492,
+    "end": 503
+  },
+  "add_qna": {
+    "line": 507,
+    "end": 520
+  },
+  "answer_qna": {
+    "line": 524,
+    "end": 537
+  },
+  "student_mypage": {
+    "line": 541,
+    "end": 551
+  },
+  "notifications": {
+    "line": 555,
+    "end": 560
+  },
+  "read_all_notifications": {
+    "line": 564,
+    "end": 568
+  },
+  "read_notification": {
+    "line": 572,
+    "end": 576
+  },
+  "notification_result": {
+    "line": 580,
+    "end": 587
+  },
+  "manage_club": {
+    "line": 591,
+    "end": 635
+  },
+  "manage_members": {
+    "line": 639,
+    "end": 647
+  },
+  "manage_member": {
+    "line": 651,
+    "end": 677
+  },
+  "professor_dashboard": {
+    "line": 681,
+    "end": 706
+  },
+  "manage_schedule": {
+    "line": 711,
+    "end": 741
+  },
+  "validated_upload": {
+    "line": 744,
+    "end": 775
+  },
+  "upload_attachment": {
+    "line": 779,
+    "end": 797
+  },
+  "download_attachment": {
+    "line": 801,
+    "end": 813
+  },
+  "manage_post": {
+    "line": 818,
+    "end": 859
+  },
+  "create_club_post": {
+    "line": 864,
+    "end": 865
+  }
+}

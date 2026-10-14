@@ -1,0 +1,83 @@
+{
+  "required_files": 16,
+  "required_files_present": true,
+  "source_and_commented_tests": {
+    "source": 42,
+    "commented": 42,
+    "result": "passed"
+  },
+  "python_ast_equivalence": true,
+  "nonpython_comments_only": true,
+  "documents": {
+    "05_ai_initial_draft/ai_draft_explanation.docx": {
+      "format_open": "passed"
+    },
+    "06_ai_revision_verification/ai_revision_verification.docx": {
+      "format_open": "passed"
+    },
+    "07_presentation/presentation_script.docx": {
+      "format_open": "passed"
+    },
+    "02_report/project_report.docx": {
+      "format_open": "passed"
+    },
+    "05_ai_initial_draft/ai_draft_explanation.pdf": {
+      "pdf_open": "passed",
+      "pages": 2,
+      "text_chars": 1594
+    },
+    "06_ai_revision_verification/ai_revision_verification.pdf": {
+      "pdf_open": "passed",
+      "pages": 6,
+      "text_chars": 5291
+    },
+    "07_presentation/presentation_script.pdf": {
+      "pdf_open": "passed",
+      "pages": 3,
+      "text_chars": 2698
+    },
+    "07_presentation/project_presentation.pdf": {
+      "pdf_open": "passed",
+      "pages": 11,
+      "text_chars": 1918
+    },
+    "02_report/project_report.pdf": {
+      "pdf_open": "passed",
+      "pages": 12,
+      "text_chars": 9174
+    },
+    "01_flowchart/flowchart.pdf": {
+      "pdf_open": "passed",
+      "pages": 1,
+      "text_chars": 814
+    },
+    "06_ai_revision_verification/evidence/assignment_original.pdf": {
+      "pdf_open": "passed",
+      "pages": 4,
+      "text_chars": 3261
+    }
+  },
+  "presentations": {
+    "07_presentation/project_presentation.pptx": {
+      "format_open": "passed",
+      "slides": 11,
+      "speaker_notes": true
+    }
+  },
+  "archives": {
+    "03_source_code/source_code.zip": {
+      "integrity": "passed",
+      "files": 47,
+      "private_data_excluded": true
+    },
+    "04_commented_code/commented_source_code.zip": {
+      "integrity": "passed",
+      "files": 47,
+      "private_data_excluded": true
+    }
+  },
+  "checklist_original_available": true,
+  "student_direct_edits": "unconfirmed",
+  "report_template": "not attached / needs confirmation",
+  "rendering": "LibreOffice converted every DOCX and PPTX to PDF; key pages/slides inspected as raster images. Minor font cache warnings occurred; rendered Korean glyphs were readable."
+}

@@ -1,0 +1,77 @@
+flowchart TD
+    S(["시작: python app.py"])
+    D["DB 경로 / 실행 옵션 결정"]
+    E{"시연 DB가 있는가?"}
+    SE["seed_demo.py로 새 시연 DB 생성"]
+    DB[("SQLite DB · 사용자 / 동아리 / 신청 / 공지 / 알림")]
+    MG["누락된 필드·테이블 추가  /  비밀번호 해시 보완"]
+    RUN["Flask 서버 시작  /  브라우저 요청 대기"]
+    IN[/"URL·폼·파일 입력  /  GET 또는 POST"/]
+    CS{"POST 토큰·역할 / 소유자 권한 유효?"}
+    ERR[/"400 / 403 / 404 / 409 / 413 오류 또는 입력 오류 안내"/]
+    MENU{"요청 경로에 따라 기능 선택"}
+    LOGIN["로그인 / 회원가입: 입력 검증·비밀번호 해시 확인"]
+    ROLE{"로그인 성공?  /  학생·교수 역할 구분"}
+    ST["학생: 탐색·내 활동·알림"]
+    PR["교수: 개설 신청 검토"]
+    SEARCH["목록·상세: 검색 / 필터·찜·일정·질문 조회"]
+    APPLY["가입 신청 / 취소: 모집 중·중복·대기 여부 검사"]
+    CREATE["개설 / 재신청: 이름·분야·소개 검증  /  PDF 선택"]
+    OWNER["개설자: 모집·부원·공지·일정·Q&A 관리"]
+    VAL{"입력·첨부 형식 / 용량·정원·상태 조건 충족?"}
+    TX["DB 변경  /  필요한 파일 저장  /  실패 시 롤백"]
+    NOTIFY{"심사 대기 상태 변경인가?"}
+    N["신청자에게 결과 알림 1회 기록"]
+    VIEW[/"HTML / JSON 응답  /  화면 이동"/]
+    READ["알림 조회·읽음: 사용자별 범위 확인"]
+    LOGOUT["로그아웃: 세션 삭제 후 초기 화면"]
+    ENDQ{"서버 종료 요청(Ctrl+C)?"}
+    END(["요청 DB 연결 종료  /  서버 중단"])
+    S --> D
+    D --> E
+    E -->|"없음"| SE
+    E -->|"있음"| MG
+    SE --> MG
+    SE -->|"생성"| DB
+    DB -->|"읽기/보완"| MG
+    MG --> RUN
+    RUN -->|"요청"| IN
+    IN --> CS
+    CS -->|"아니오"| ERR
+    CS -->|"예 또는 일반 GET"| MENU
+    MENU -->|"로그인/가입"| LOGIN
+    LOGIN --> ROLE
+    ROLE -->|"실패"| ERR
+    ROLE -->|"학생"| ST
+    ROLE -->|"교수"| PR
+    ST --> VIEW
+    PR -->|"조회"| VIEW
+    PR -->|"심사 POST"| VAL
+    MENU -->|"탐색/상세"| SEARCH
+    SEARCH -->|"조회"| DB
+    SEARCH --> VIEW
+    MENU -->|"가입/취소"| APPLY
+    MENU -->|"개설/재신청"| CREATE
+    MENU -->|"동아리 관리"| OWNER
+    APPLY --> VAL
+    CREATE --> VAL
+    OWNER -->|"변경 POST"| VAL
+    OWNER -->|"조회 GET"| VIEW
+    VAL -->|"아니오"| ERR
+    VAL -->|"예"| TX
+    TX -->|"저장"| DB
+    TX -->|"예외 / 롤백"| ERR
+    TX -->|"성공"| NOTIFY
+    NOTIFY -->|"심사 상태 변경"| N
+    NOTIFY -->|"일반 저장/이미 처리됨"| VIEW
+    N -->|"알림 저장"| DB
+    N --> VIEW
+    MENU -->|"알림"| READ
+    READ -->|"조회/읽음 저장"| DB
+    READ --> VIEW
+    MENU -->|"로그아웃"| LOGOUT
+    LOGOUT --> VIEW
+    ERR -->|"입력 유지 / 안내"| VIEW
+    VIEW -->|"요청 DB 연결 닫기"| ENDQ
+    ENDQ -->|"계속"| RUN
+    ENDQ -->|"종료"| END

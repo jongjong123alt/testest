@@ -1,0 +1,12 @@
+854fef22016485e0ea1c797e288bae226a8268f5|2026-10-13T10:59:02Z|윤종민|Polish submission UI and remove development labels and screen numbers
+2ec80d3c6f92050eb6c9be6304f3866242d47c98|2026-10-13T10:51:20Z|윤종민|Relax test registration and remove official downloads and contact details
+14443dce144dc9944a5c067db3c2566544e470c4|2026-10-13T06:39:21Z|윤종민|Ship runtime-only club website download without QA and documentation
+fc52894b4cae118dd4a0ffcf3d9fa702aa121f0b|2026-10-13T06:33:33Z|윤종민|Consolidate my activity into applications and club registration tabs
+57b31fc59cbf8ff5825a92cf174b6c4891a3f518|2026-10-13T06:24:10Z|윤종민|Keep official registration format independent of historic deadline
+63333d675b1f95cd4879124beb96115de829e8b0|2026-10-13T06:16:04Z|윤종민|Align club registration preparation with 2026 Metropol official notice
+60734a823459830365ec283e06c0f28e0990d750|2026-10-13T05:00:45Z|윤종민|Fix login page failures with missing timezone data and incomplete recruitment
+56a3605735782bc6d8f33778072d9c331e339342|2026-10-13T04:45:06Z|윤종민|Remove obsolete club files and consolidate documentation
+cf7f92ecdbca9aeaf8026a4a588a7d8c60dda1b4|2026-10-13T04:41:00Z|윤종민|Support direct python app.py startup with preserved demo data
+2fdda11e5a78aefee04df557081d590a21d62faf|2026-10-13T04:34:17Z|윤종민|Implement D01-D12 desktop club UI and management workflows
+c694b394d0d1671a596df143de9a319a97ae2eba|2026-10-13T03:19:22Z|윤종민|Add downloadable KDU club project update and verification notes
+bae1187d912fe55d8607bb50c4012a6e1f1b5bfb|2026-07-15T14:00:24+09:00|jong|firset commit

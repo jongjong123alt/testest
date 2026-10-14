@@ -1,0 +1,24 @@
+digraph overview {graph [rankdir=TB,bgcolor="white",dpi=180];node [fontname="Noto Sans CJK KR",fontsize=16,style=filled,fillcolor="#EAF2FF",color="#3182F6"];edge [color="#7C879B"];
+start [label="실행 / DB 생성·보완",shape=oval];
+login [label="로그인 / 역할 구분",shape=diamond];
+student [label="학생: 탐색·가입·개설",shape=box];
+prof [label="교수: 개설 신청 검토",shape=box];
+owner [label="개설자: 부원·공지·일정 관리",shape=box];
+validate [label="입력·권한·정원·첨부 검사",shape=diamond];
+db [label="SQLite 저장 / 결과 알림",shape=cylinder];
+view [label="내 활동 / 알림 / 상세 화면",shape=parallelogram];
+error [label="오류 안내 / 입력 유지",shape=parallelogram];
+end [label="로그아웃 / 서버 Ctrl+C 종료",shape=oval];
+start->login;
+login->student;
+login->prof;
+student->owner;
+student->validate;
+prof->validate;
+owner->validate;
+validate->db;
+validate->error;
+db->view;
+error->view;
+view->end;
+}

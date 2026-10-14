@@ -1,0 +1,98 @@
+[
+  {
+    "number": 1,
+    "title": "직접 실행",
+    "function": "__main__",
+    "file": "app.py",
+    "before": "\nif __name__=='__main__':\n    app.run(debug=os.environ.get('KDU_DEBUG')=='1')",
+    "after": "if __name__ == '__main__':\n    import argparse\n    import subprocess\n    import sys\n    parser = argparse.ArgumentParser(description='KDU 동아리 웹사이트 실행')\n    parser.add_argument('--original', action='store_true', help='시연 DB 대신 기존 database.db 사용')\n    parser.add_argument('--host', default='127.0.0.1')\n    parser.add_argument('--port', type=int, default=5000)\n    launch_args = parser.parse_args()\n    if not launch_args.original and 'KDU_DATABASE' not in os.environ:\n        demo_path = BASE_DIR / 'instance' / 'demo.db'\n        if not demo_path.exists():\n            subprocess.run([sys.executable, str(BASE_DIR / 'seed_demo.py'),\n                            '--output', str(demo_path)], cwd=BASE_DIR, check=True)\n        os.environ['KDU_DATABASE'] = str(demo_path)\n        os.environ.setdefault('KDU_ATTACHMENT_FOLDER', str(BASE_DIR / 'instance' / 'demo-attachments'))\n\n...\nif __name__=='__main__':\n    app.run(host=launch_args.host, port=launch_args.port, debug=False)",
+    "reason": "DB 자동 생성·원본 보존과 실행 옵션 추가",
+    "commit": "cf7f92e",
+    "checklist": "추가 점검",
+    "test": "archive_execution.json"
+  },
+  {
+    "number": 2,
+    "title": "한국 시각 계산",
+    "function": "now",
+    "file": "app.py",
+    "before": "def now():\n    \"\"\"학교 현지 시각으로 모든 모집·일정 경계를 판단합니다.\"\"\"\n    override = app.config.get('NOW')\n    return override() if override else datetime.now(ZoneInfo('Asia/Seoul')).replace(tzinfo=None)",
+    "after": "def now():\n    \"\"\"학교 현지 시각으로 모든 모집·일정 경계를 판단합니다.\"\"\"\n    override = app.config.get('NOW')\n    # 현재 한국 시각은 UTC+09:00입니다. Windows의 시스템 시간대 DB에 의존하지 않습니다.\n    return override() if override else datetime.now(timezone(timedelta(hours=9))).replace(tzinfo=None)",
+    "reason": "ZoneInfo 의존성을 고정 UTC+09:00으로 바꿔 Windows 시스템 시간대 DB 누락 대응",
+    "commit": "60734a8",
+    "checklist": "추가 점검",
+    "test": "test_login_without_system_timezone_database"
+  },
+  {
+    "number": 3,
+    "title": "빈 모집 정보",
+    "function": "recruitment",
+    "file": "app.py",
+    "before": "def recruitment(club):\n    r = row('SELECT * FROM recruitment_rounds WHERE id=? AND club_id=?', (club['current_round_id'], club['id']))\n    if not r:\n        return {'id': None, 'starts_at': '', 'ends_at': '', 'capacity': 0, 'approved': 0, 'pending': 0, 'state': '미설정', 'open': False}\n    approved = row(\"SELECT COUNT(*) n FROM club_members WHERE recruitment_id=? AND status='approved'\", (r['id'],))['n']\n    pending = row(\"SELECT COUNT(*) n FROM club_members WHERE recruitment_id=? AND status='pending'\", (r['id'],))['n']\n    current = now().isoformat(timespec='minutes')\n    state = '모집 예정' if current < r['starts_at'] else '모집중'\n    if r['closed'] or current > r['ends_at'] or approved >= r['capacity']:\n        state = '모집 마감'\n    return {**dict(r), 'approved': approved, 'pending': pending, 'state': state, 'open': state == '모집중'}",
+    "after": "def recruitment(club):\n    r = row('SELECT * FROM recruitment_rounds WHERE id=? AND club_id=?', (club['current_round_id'], club['id']))\n    if not r:\n        return {'id': None, 'starts_at': '', 'ends_at': '', 'capacity': 0, 'approved': 0, 'pending': 0, 'state': '미설정', 'open': False}\n    approved = row(\"SELECT COUNT(*) n FROM club_members WHERE recruitment_id=? AND status='approved'\", (r['id'],))['n']\n    pending = row(\"SELECT COUNT(*) n FROM club_members WHERE recruitment_id=? AND status='pending'\", (r['id'],))['n']\n    # 이전 버전/미완성 모집 정보는 신규 신청을 막고 관리 화면에서 보완합니다.\n    try:\n        starts = datetime.fromisoformat(r['starts_at'])\n        ends = datetime.fromisoformat(r['ends_at'])\n        capacity = int(r['capacity'])\n        if starts.tzinfo or ends.tzinfo or ends <= starts or capacity < 1:\n            raise ValueError()\n    except (TypeError, ValueError):\n        return {**dict(r), 'starts_at': r['starts_at'] or '', 'ends_at': r['ends_at'] or '',\n                'capacity': 0, 'approved': approved, 'pending': pending, 'state': '미설정', 'open': False}",
+    "reason": "누락·잘못된 모집 날짜와 정원을 미설정 상태로 처리하여 500 방지",
+    "commit": "60734a8",
+    "checklist": "추가 점검",
+    "test": "test_incomplete_recruitment_does_not_break_login_or_management"
+  },
+  {
+    "number": 4,
+    "title": "SQL 파일 인코딩",
+    "function": "init_db",
+    "file": "app.py",
+    "before": "def init_db():\n    \"\"\"새 데모 DB 초기화용. 기존 DB에는 호출하지 않습니다.\"\"\"\n    with app.app_context():\n        db = get_db()\n        db.executescript('DROP TABLE IF EXISTS attachments; DROP TABLE IF EXISTS recruitment_rounds;')\n        db.executescript((BASE_DIR / 'schema.sql').read_text())\n        migrate_database(db)",
+    "after": "def init_db():\n    \"\"\"새 데모 DB 초기화용. 기존 DB에는 호출하지 않습니다.\"\"\"\n    with app.app_context():\n        db = get_db()\n        db.executescript('DROP TABLE IF EXISTS registration_documents; DROP TABLE IF EXISTS attachments; DROP TABLE IF EXISTS recruitment_rounds;')\n        db.executescript((BASE_DIR / 'schema.sql').read_text(encoding='utf-8'))\n        migrate_database(db)",
+    "reason": "schema.sql 읽기에 UTF-8을 명시해 Windows CP949 실패 대응",
+    "commit": "60734a8",
+    "checklist": "추가 점검",
+    "test": "test_schema_initialization_with_windows_default_encoding"
+  },
+  {
+    "number": 5,
+    "title": "개설 입력 선택화",
+    "function": "club_form_values",
+    "file": "app.py",
+    "before": "def club_form_values():\n    category = request.form.get('category')\n    if category not in CATEGORIES:\n        raise ValueError('올바른 분류를 선택해주세요.')\n    return {'name': text_field('name', 2, 30), 'category': category,\n            'description': text_field('description', 10, 1000), 'activity_plan': text_field('activity_plan', 10, 2000),\n            'campus': text_field('campus', 1, 80), 'activity_time': text_field('activity_time', 1, 100),\n            'fee': text_field('fee', 1, 80), 'room_location': request.form.get('room_location', '').strip()[:100],\n            'requirements': text_field('requirements', 1, 500)}",
+    "after": "def club_form_values():\n    category=request.form.get('category')\n    if category not in CATEGORIES:\n        raise ValueError('동아리 분야를 선택해주세요.')\n    kind=request.form.get('registration_kind','new')\n    if kind not in {'new','existing'}:\n        raise ValueError('등록 유형을 선택해주세요.')\n    established=request.form.get('established_on','').strip()\n    if established:\n        try:datetime.strptime(established,'%Y-%m-%d')\n        except ValueError:raise ValueError('설립일자의 날짜 형식을 확인해주세요.')\n    count=request.form.get('founding_member_count','').strip()\n    try:\n        count=int(count) if count else None\n        if count is not None and count<0:raise ValueError()\n    except ValueError:",
+    "reason": "공식 서식 구조 추가 후 요청에 따라 상세 정보·월별 계획·회원 수 등을 선택으로 변경",
+    "commit": "63333d6 → 2ec80d3",
+    "checklist": "7장 파일 업로드: 제한 유지",
+    "test": "test_review_without_pdf_or_manual_attestation"
+  },
+  {
+    "number": 6,
+    "title": "선택 PDF 첨부",
+    "function": "registration_pdf",
+    "file": "app.py",
+    "before": "(UI 초안에는 해당 함수 없음)",
+    "after": "def registration_pdf(file,values):\n    if not file or not file.filename:\n        return None, None\n    actual=Path(file.filename.replace('\\\\','/')).name\n    data=file.read(10*1024*1024+1)\n    if len(data)>10*1024*1024:raise ValueError('사이트 보관용 PDF는 10MB 이하여야 합니다.')\n    try:\n        pdf=PdfReader(io.BytesIO(data))\n        if pdf.is_encrypted or len(pdf.pages)==0 or not data.startswith(b'%PDF-'):\n            raise ValueError()\n    except Exception:\n        raise ValueError('읽을 수 있는 암호화되지 않은 PDF를 첨부해주세요.')\n    return data,actual",
+    "reason": "등록 PDF 보관을 추가하되 파일명 자유·선택 첨부. 파싱과 용량 제한은 유지",
+    "commit": "63333d6 → 2ec80d3",
+    "checklist": "7장 파일 업로드",
+    "test": "test_registration_free_filename_optional_forms_and_valid_pdf"
+  },
+  {
+    "number": 7,
+    "title": "내 활동 탭 통합",
+    "function": "activity_tabs",
+    "file": "templates/student_mypage.html",
+    "before": "<button data-tab=\"applications\" class=\"active\">신청 현황</button>\n<button data-tab=\"joined\">가입 동아리</button>\n<button data-tab=\"favorites\">찜</button>\n<button data-tab=\"created\">개설 신청</button>",
+    "after": "<button data-tab=\"applications\" class=\"active\">신청 현황</button>\n<button data-tab=\"created\">개설 신청</button>",
+    "reason": "4개 탭을 신청 현황·개설 신청 두 탭으로 통합",
+    "commit": "fc52894",
+    "checklist": "추가 점검",
+    "test": "Chromium tab visibility checks"
+  },
+  {
+    "number": 8,
+    "title": "제출 화면 표기",
+    "function": "heading",
+    "file": "templates/base.html",
+    "before": "{% macro heading(number,title,subtitle) %}<div class=\"page-heading\"><p class=\"eyebrow\">{{ number }} · 경동대 동아리 프로젝트</p><h1>{{ title }}</h1><p>{{ subtitle }}</p></div>{% endmacro %}",
+    "after": "{% macro heading(title,subtitle) %}<div class=\"page-heading\"><h1>{{ title }}</h1><p>{{ subtitle }}</p></div>{% endmacro %}",
+    "reason": "D01–D12와 개발용 문구를 제거하고 사용 안내로 변경",
+    "commit": "854fef2",
+    "checklist": "추가 점검",
+    "test": "Chromium body text assertions"
+  }
+]

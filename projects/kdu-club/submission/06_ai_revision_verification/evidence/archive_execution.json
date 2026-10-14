@@ -1,0 +1,32 @@
+[
+  {
+    "archive": "03_source_code/source_code.zip",
+    "fresh_python_app_start": "passed",
+    "demo_database_created": true,
+    "authenticated_http_200": [
+      "kdu_student:/",
+      "kdu_student:/student/mypage",
+      "kdu_student:/clubs/1",
+      "kdu_student:/official-guide",
+      "kdu_professor:/professor/dashboard",
+      "kdu_professor:/official-guide"
+    ],
+    "platform": "Linux Python 3.12",
+    "windows": "not tested"
+  },
+  {
+    "archive": "04_commented_code/commented_source_code.zip",
+    "fresh_python_app_start": "passed",
+    "demo_database_created": true,
+    "authenticated_http_200": [
+      "kdu_student:/",
+      "kdu_student:/student/mypage",
+      "kdu_student:/clubs/1",
+      "kdu_student:/official-guide",
+      "kdu_professor:/professor/dashboard",
+      "kdu_professor:/official-guide"
+    ],
+    "platform": "Linux Python 3.12",
+    "windows": "not tested"
+  }
+]

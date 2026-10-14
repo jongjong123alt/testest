@@ -1,0 +1,6 @@
+{
+  "seed_demo.py": true,
+  "app.py": true,
+  "qa/run_browser_checks.py": true,
+  "tests/test_workflow.py": true
+}

@@ -28,7 +28,22 @@ flowchart TD
     LOGOUT["로그아웃: 세션 삭제 후 초기 화면"]
     ENDQ{"서버 종료 요청(Ctrl+C)?"}
     END(["요청 DB 연결 종료  /  서버 중단"])
-    S --> D
+    DEP{"현재 Python의 라이브러리 준비 완료?"}
+    ENV["프로젝트 .venv 생성 또는 재사용"]
+    LOCAL{"전용 환경의 라이브러리 준비 완료?"}
+    INSTALL["pip 준비 / requirements.txt 자동 설치 / 재확인"]
+    RESTART["전용 Python으로 같은 실행 인자 재시작"]
+    S --> DEP
+    DEP -->|"예"| D
+    DEP -->|"아니오"| ENV
+    ENV --> LOCAL
+    LOCAL -->|"예"| RESTART
+    LOCAL -->|"아니오"| INSTALL
+    INSTALL -->|"성공"| RESTART
+    RESTART --> DEP
+    ENV -->|"실패"| BOOTERR
+    INSTALL -->|"실패 또는 중단"| BOOTERR
+    S -->|"Python 버전 / 필수 파일 오류"| BOOTERR
     D --> E
     E -->|"없음"| SE
     E -->|"있음"| MG

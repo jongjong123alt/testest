@@ -7,7 +7,7 @@
 - [검증 기록](projects/kdu-club/VERIFICATION.md)
 - [구현 화면](projects/kdu-club/qa/screenshots)
 
-의존성을 설치한 뒤 `projects/kdu-club` 폴더에서 `python app.py`로 실행하세요.
+`projects/kdu-club` 폴더에서 `python app.py`로 실행하세요. 필요한 라이브러리는 자동 설치됩니다. Python 3.10 이상(3.12 권장)과 최초 설치 시 인터넷 연결이 필요합니다.
 
 ## 최종 제출 산출물
 

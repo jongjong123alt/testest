@@ -31,6 +31,7 @@
 - 03_source_code/kdu_club_project/.gitignore
 - 03_source_code/kdu_club_project/README.md
 - 03_source_code/kdu_club_project/app.py
+- 03_source_code/kdu_club_project/bootstrap.py
 - 03_source_code/kdu_club_project/qa/browser_check.js
 - 03_source_code/kdu_club_project/qa/fixtures/sample.pdf
 - 03_source_code/kdu_club_project/qa/run_browser_checks.py
@@ -74,6 +75,7 @@
 - 03_source_code/kdu_club_project/templates/register_club.html
 - 03_source_code/kdu_club_project/templates/signup.html
 - 03_source_code/kdu_club_project/templates/student_mypage.html
+- 03_source_code/kdu_club_project/tests/test_bootstrap.py
 - 03_source_code/kdu_club_project/tests/test_workflow.py
 - 03_source_code/requirements.txt
 - 03_source_code/source_code.zip
@@ -82,6 +84,7 @@
 - 04_commented_code/kdu_club_project/.gitignore
 - 04_commented_code/kdu_club_project/README.md
 - 04_commented_code/kdu_club_project/app.py
+- 04_commented_code/kdu_club_project/bootstrap.py
 - 04_commented_code/kdu_club_project/qa/browser_check.js
 - 04_commented_code/kdu_club_project/qa/fixtures/sample.pdf
 - 04_commented_code/kdu_club_project/qa/run_browser_checks.py
@@ -125,6 +128,7 @@
 - 04_commented_code/kdu_club_project/templates/register_club.html
 - 04_commented_code/kdu_club_project/templates/signup.html
 - 04_commented_code/kdu_club_project/templates/student_mypage.html
+- 04_commented_code/kdu_club_project/tests/test_bootstrap.py
 - 04_commented_code/kdu_club_project/tests/test_workflow.py
 - 05_ai_initial_draft/ai_draft_explanation.docx
 - 05_ai_initial_draft/ai_draft_explanation.pdf
@@ -181,6 +185,10 @@
 - 06_ai_revision_verification/evidence/artifact_validation.json
 - 06_ai_revision_verification/evidence/assignment_original.pdf
 - 06_ai_revision_verification/evidence/assignment_original.txt
+- 06_ai_revision_verification/evidence/auto_install_code_locations.json
+- 06_ai_revision_verification/evidence/auto_install_commented_tests.log
+- 06_ai_revision_verification/evidence/auto_install_source_tests.log
+- 06_ai_revision_verification/evidence/auto_install_verification.json
 - 06_ai_revision_verification/evidence/browser-results.json
 - 06_ai_revision_verification/evidence/browser_checks.log
 - 06_ai_revision_verification/evidence/chapter7_checklist.json
@@ -202,6 +210,7 @@
 - 07_presentation/presentation_script.pdf
 - 07_presentation/project_presentation.pdf
 - 07_presentation/project_presentation.pptx
+- AUTO_INSTALL_UPDATE.md
 - README.md
 - file_list.md
 - sha256_manifest.json

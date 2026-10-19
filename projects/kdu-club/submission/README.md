@@ -2,6 +2,8 @@
 
 기준 소스: Git 854fef2. AI 초안: 사용자가 지정한 UI 최초 적용 Git 2fdda11. 제작·실행 검증 기준일: 2026년 10월 14일.
 
+2026-10-19 추가: 실행·주석 소스와 ZIP에 라이브러리 자동 설치를 반영했습니다. 기존 보고서·PPT·검증 문서는 10월 14일 개발 기록이며, 이후 변경과 검증은 [자동 설치 변경 기록](AUTO_INSTALL_UPDATE.md)을 함께 확인하세요.
+
 ## 파일 위치와 제작 상태
 |폴더|핵심 파일|상태|
 |---|---|---|
@@ -14,7 +16,7 @@
 |07_presentation|project_presentation.pptx / .pdf / presentation_script.docx / .pdf|11장, 발표 대본 약 6분 30초|
 
 ## 실행
-03_source_code/source_code.zip을 별도 새 폴더에 풀고 README.md에 따라 설치하세요. Windows는 `py -m venv .venv`, `.\.venv\Scripts\python.exe -m pip install -r requirements.txt`, `.\.venv\Scripts\python.exe app.py`입니다. pip 명령이 인식되지 않아도 Python의 모듈 실행을 사용합니다.
+03_source_code/source_code.zip을 새 폴더에 풀고 `python app.py`를 실행하세요. Python 3.10 이상(3.12 권장)이 필요합니다. 라이브러리는 자동 설치하며 최초 설치에는 인터넷 연결이 필요합니다. Windows에서 `python` 명령이 없다면 `py app.py`를 사용하세요.
 가상 학생 kdu_student / sample1234, 교수 kdu_professor / sample1234. 실제 학교 계정·개인 비밀번호가 아닙니다. DB와 가상 화면 자료는 첫 실행에 생성됩니다. 로컬 접속 http://127.0.0.1:5000, 서버 종료 Ctrl+C입니다.
 
 ## 실제 검증

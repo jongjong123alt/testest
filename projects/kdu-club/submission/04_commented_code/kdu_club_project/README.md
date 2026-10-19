@@ -1,21 +1,17 @@
 # KDU 동아리 웹사이트 실행 안내
 
 언어: Python / 서버: Flask / DB: SQLite / 화면: Jinja2·HTML·CSS·JavaScript.
-Python 3.11 이상을 권장합니다. 검증 환경은 Python 3.12, Linux입니다. Windows에서의 설치·실행은 아래 절차를 사용하며, 사용자 PC의 실행 결과는 확인 필요입니다.
+Python 3.10 이상이 필요하며 3.12를 권장합니다. 검증 환경은 Python 3.12, Linux입니다. Windows에서의 설치·실행은 아래 절차를 사용하며, 사용자 PC의 실행 결과는 확인 필요입니다.
 
 ## Windows PowerShell
 ```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe app.py
+python app.py
 ```
-`py`가 없다면 Python 설치 시 Add python.exe to PATH를 선택하고 새 PowerShell을 여세요. pip 모듈이 없다면 `py -m ensurepip --upgrade`를 실행하세요.
+`python`이 없다면 `py app.py`를 사용하세요. 둘 다 없다면 Python을 설치하고 새 PowerShell을 여세요. 필요한 라이브러리는 전용 .venv에 자동 설치합니다. 최초 설치에는 인터넷 연결이 필요하며, 재실행은 준비된 환경을 재사용합니다.
 
 ## Linux / macOS
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python app.py
+python3 app.py
 ```
 브라우저에서 http://127.0.0.1:5000 에 접속합니다. 서버 종료는 터미널 Ctrl+C입니다. 포트 충돌 시 `app.py --port 5003`을 사용하세요.
 

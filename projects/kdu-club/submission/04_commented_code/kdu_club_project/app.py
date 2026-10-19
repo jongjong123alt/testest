@@ -1,4 +1,9 @@
 """경동대학교 동아리 과제: 데스크톱 UI와 실제 신청·운영 흐름."""
+# 외부 라이브러리를 읽기 전에 실행 환경을 준비합니다. 테스트 import에는 적용하지 않습니다.
+if __name__ == '__main__':
+    from bootstrap import ensure_dependencies
+    ensure_dependencies()
+
 import os
 import uuid
 import secrets

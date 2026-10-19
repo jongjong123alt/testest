@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-19",
+  "platform": "Linux Python 3.12",
+  "implementation": "AI; user requested automatic dependency installation",
+  "tests": {
+    "source": {
+      "run": 49,
+      "passed": 49
+    },
+    "commented": {
+      "run": 49,
+      "passed": 49
+    }
+  },
+  "comment_ast_equivalence": {
+    "seed_demo.py": true,
+    "bootstrap.py": true,
+    "app.py": true,
+    "qa/run_browser_checks.py": true,
+    "tests/test_bootstrap.py": true,
+    "tests/test_workflow.py": true
+  },
+  "runtime_existing_data_preserved": {
+    "kdu_club_project/database.db": true,
+    "kdu_club_project/instance/demo-attachments/demo-study.pdf": true,
+    "kdu_club_project/instance/demo.db": true
+  },
+  "fresh_install": {
+    "empty_launcher_no_pip": true,
+    "unicode_space_path": true,
+    "automatic_install": true,
+    "student_login": 200,
+    "professor_login": 200
+  },
+  "second_run": {
+    "PIP_NO_INDEX": "1",
+    "installation_called": false,
+    "student_login": 200,
+    "professor_login": 200
+  },
+  "windows": "not run",
+  "browser_ui": "not rerun; unchanged"
+}

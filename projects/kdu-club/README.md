@@ -2,20 +2,26 @@
 
 경동대학교 동아리 과제입니다. 제공받은 D01–D12 화면 이미지를 바탕으로 기존 Flask·SQLite·Jinja2 코드를 보완했습니다. 모바일 UI는 작업 범위에서 제외합니다.
 
-## 빠른 실행 — Windows PowerShell
+## 빠른 실행 — Python 3.10 이상 (3.12 권장)
+
+ZIP 전체를 쓰기 가능한 폴더에 압축 해제하고, `app.py`가 있는 폴더에서 실행하세요.
+필요한 라이브러리가 없거나 버전이 다르면 `.venv`를 자동으로 만들고 설치합니다.
+최초 설치에는 인터넷 연결이 필요하며, 설치가 끝나면 사이트가 이어서 실행됩니다.
+다음 실행부터는 설치된 환경을 재사용합니다. Python 자체는 미리 설치되어 있어야 합니다.
+
+### Windows PowerShell
 
 ```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe app.py
+python app.py
 ```
 
-## 빠른 실행 — macOS/Linux
+`python` 명령이 인식되지 않으면 `py app.py`로 실행하세요.
+별도의 `pip` 명령이나 가상환경 활성화 명령은 필요하지 않습니다.
+
+### macOS/Linux
 
 ```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python app.py
+python3 app.py
 ```
 
 브라우저 주소창에서 `http://127.0.0.1:5000/login`을 열면 됩니다. 시연 계정:
@@ -76,7 +82,7 @@ PDF, HWP, DOCX, JPG/JPEG, PNG를 파일당 10MiB 이하, 공지당 최대 3개�
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-Windows에서는 `.venv/bin/python` 대신 `.\.venv\Scripts\python.exe`를 사용하세요. 자동 테스트 42개가 임시 DB에서 통과했습니다. 기존 데이터는 건드리지 않습니다. Chromium·Playwright로 D01–D12와 팝업/오류 상태를 검증했고 콘솔 오류는 없었습니다.
+Windows에서는 `.venv/bin/python` 대신 `.\.venv\Scripts\python.exe`를 사용하세요. 자동 테스트 49개(기능 42개·자동 설치 7개)가 통과했습니다. 기능 검사는 임시 DB를 사용합니다. 기존 데이터는 건드리지 않습니다. Chromium·Playwright로 D01–D12와 팝업/오류 상태를 검증했고 콘솔 오류는 없었습니다.
 
 브라우저 QA를 다시 실행하려면 Node.js와 Playwright 및 Chromium이 필요합니다. 별도 작업 디렉터리에 Playwright를 설치하고 `NODE_PATH`를 해당 `node_modules` 경로로 설정하거나 현재 프로젝트에서 Playwright를 사용 가능하게 준비한 뒤 다음을 실행하세요.
 

@@ -1,0 +1,22 @@
+{
+  "type": "posthoc-transfer-manifest-not-in-original-zip",
+  "zip_filename": "p4_core_lifecycle_fence_candidate.zip",
+  "zip_sha256": "e4b8fe6070d475488361a6fada94b3c5d54c8601d35098a98ba2ab93cf87acb6",
+  "baseline": {
+    "core_pr86_commit": "fc36d5ba3c41a7aa73e064322e6878775dfe23ef",
+    "core_lifetime_branch_commit": "ed8755a597973922d02bd675e80b00c410dfdaf4",
+    "content_pr87_commit": "fabdc81e92854ee7ea524c4a6633b520eaab9bca",
+    "content_pr87_tree": "de141b847dbfb10d647488bab963f2fe545f52b5",
+    "candidate_tree": "not-a-git-tree",
+    "p4_shared_manifest_hash": "not_verified"
+  },
+  "files": [
+    {"path":"README.md","size":5347,"sha256":"e53084cccd93dd26f5adb817a7eb4c12e7a802c6e933244056e28e3b8031cfde"},
+    {"path":"REPORT.md","size":4819,"sha256":"7e661dc70fbc50ffd96cc0ab5b053633538d5f6629bc3818ffbf0591aa435a08"},
+    {"path":"extension/content/ig04-p4-bootstrap-guard.mjs","size":1451,"sha256":"41cee89f5927af93a14d58e61d0ed8dec4d0c42de2632dd6c57f0c9300e56666"},
+    {"path":"extension/src/ig04-p4-attempt-fence.mjs","size":9578,"sha256":"088e405a3aeeff82d075a814472b78b0e904b2a64f460d4b1088550a2e5a59eb"},
+    {"path":"extension/tests/ig04-p4-attempt-fence.test.mjs","size":8738,"sha256":"5aa9e2ade276c5937103f09a3a93665bc47eb8725514996d606e3d99c4f7d654"},
+    {"path":"test-output.txt","size":2244,"sha256":"5ec9a8557445d54dfe1109eda615b1e7ae95dcd9e34eba09f6cf971ba056aa6e"}
+  ],
+  "test": "9/9 simulated Node tests; see test-output.txt"
+}
